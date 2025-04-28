@@ -1,0 +1,78 @@
+---
+title: "Datset_1_cleaning"
+format: html
+---
+## Info
+This script is used to clean the Dataset_1.csv file and create a data source used by shiny application modules.
+
+### Import raw data
+```{r}
+library(readr)
+library(here)
+library(dplyr)
+Dataset_1 <- read_csv(here("data_preprocessing/Notebooks/Dataset_1_preprocessing/Dataset_1.csv"), 
+    col_types = cols(`Detected in 32 samples` = col_character(), 
+        `IS DMSO_1` = col_double(), `IS DMSO_2` = col_double(), 
+        `IS DMSO_3` = col_number(), `T-test Significant AD CCCP_AD DMSO (FDR=0.05, S0=0.1)` = col_character(), 
+        `MS/MS Count` = col_integer()), locale = locale(decimal_mark = ","))
+
+glimpse(Dataset_1)
+```
+
+### Changing NaN to real NA
+
+```{r}
+# Replace NaN with NA
+Dataset_1[Dataset_1 == "NaN"] <- NA
+
+glimpse(Dataset_1)
+
+```
+
+### Stringent quality filtering , selecting crucial columns 
+```{r}
+Dataset_1_cleaned <- Dataset_1 %>% filter(`Detected in 32 samples` == "yes",
+                     `MS/MS Count` >= 2 ) %>% 
+        select("Gene_names" = `Gene names`,
+       "STRESS_I_pval" = `negLog10 p-value IS CCCP_IS DMSO`, 
+       "STRESS_I_FC" = `Log2 change IS CCCP_IS DMSO`, 
+        "STRESS_I_qval" = `q-value IS CCCP_IS DMSO`,
+       
+       "STRESS_II_pval" = `negLog10 p-value SS CCCP_SS DMSO` ,
+      "STRESS_II_FC" = `Log2 change SS CCCP_SS DMSO`,
+       "STRESS_II_qval" = `q-value SS CCCP_SS DMSO`,
+      
+      
+       "RECOVERY_I_pval" = `negLog10 p-value REC CCCP_REC DMSO`,
+       "RECOVERY_I_FC" = `Log2 change REC CCCP_REC DMSO`,
+       "RECOVERY_I_qval" = `q-value REC CCCP_REC DMSO`,
+      
+       "RECOVERY_II_pval" = `negLog10 p-value AD CCCP_AD DMSO`  ,
+       "RECOVERY_II_FC" = `Log2 change AD CCCP_AD DMSO`,
+       "RECOVERY_II_qval" = `q-value AD CCCP_AD DMSO`,
+        "Protein_name" = `Protein names`,
+     "Uniprot" = `Leading razor protein`)
+  
+glimpse(Dataset_1_cleaned)
+
+```
+
+### Create a long format data with the following columns: Gene_names, Uniprot, Protein_name, Time_point, pval, FC, qval
+```{r}
+# For Dataset_1_cleaned create a long format data with the following columns: Gene_names, Uniprot, Protein_name, Time_point, pval, FC, qval
+  
+Dataset_1_long <- Dataset_1_cleaned %>% tidyr::pivot_longer(
+    cols = -c(Gene_names, Uniprot, Protein_name),
+    names_to = c("Time_point", ".value"),
+    names_pattern = "(STRESS_I|STRESS_II|RECOVERY_I|RECOVERY_II)_(pval|FC|qval)"
+  ) 
+```
+
+### Save the cleaned long format data for use in the application
+```{r}
+# Save the cleaned long format data for use in the application
+arrow::write_parquet(Dataset_1_long, here("data", "Dataset_1_long.parquet")) 
+
+```
+
+
