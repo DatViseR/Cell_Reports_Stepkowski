@@ -1,65 +1,158 @@
 box::use(
-  shiny[div, h1, h2, h3, h4, p, a, br, strong, em, HTML, moduleServer, NS, 
-        tags, tabPanel, fluidRow, column],
-  bslib[card, card_header, card_body]
+  shiny[div, h1, h2, h3, h4, p, a, br, strong, em, HTML, moduleServer, NS, img, 
+        tags, tabPanel, fluidRow, column, icon],
+  bslib[card, card_header, card_body, accordion, accordion_panel, value_box, layout_column_wrap]
 )
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
   
+
   div(
     class = "about-container",
     style = "padding: 20px;",
     
-    h1("About This Interactive Resource", 
-       style = "color: #0062cc; margin-bottom: 20px;"),
-    
-    card(
-      card_header(
-        h2("Paper Information", style = "margin: 0;")
-      ),
-      card_body(
-        h3("Stępkowski et al. Cell Reports 2024"),
-        p(
-          "This interactive tool provides resources and visualization capabilities for the data 
-          presented in our Cell Reports paper. The tool allows exploration of the dataset 
-          through custom visualization and filtering options."
-        ),
-        h4("Citation"),
-        p(
-          HTML("Stępkowski, T. et al. (2024). <em>Title of the paper</em>. 
-               Cell Reports, Volume(Issue), pages. 
-               <a href='https://doi.org/DOI_NUMBER'>https://doi.org/DOI_NUMBER</a>")
-        )
-      )
+    # Simplified Hero section using more Shiny components
+    fluidRow(
+      column(
+        width = 12,
+        card(
+          card_body(
+            fluidRow( style = "padding: 20px;",
+              # Left content area (text)
+            column(style = "padding: 20px;", 
+  width = 8,
+  h1("Interactive Data Science Tool for Temporal Alterations of the Nascent Proteome in Response to Mitochondrial Stress", 
+     style = "color: #0062cc; margin-bottom: 24px; font-weight: 600;"),   
+  
+  p(
+    "This interactive application provides comprehensive analysis tools for exploring proteomic resources described in ",
+    tags$a(
+      href = "https://doi.org/10.1016/j.celrep.2024.114803",
+      "Stępkowski et al. Cell Reports 2024"
     ),
-    
-    br(),
-    
-    card(
-      card_header(
-        h2("Authors", style = "margin: 0;")
-      ),
-      card_body(
-        fluidRow(
-          column(
-            width = 6,
-            h4("Research Team"),
-            tags$ul(
-              tags$li("Author One, PhD - Research Institute"),
-              tags$li("Author Two, MD - Medical University"),
-              tags$li("Author Three, PhD - University Department")
-            )
-          ),
-          column(
-            width = 6,
-            h4("Contact"),
-            p(
-              "For questions about the data or tool, please contact:",
-              br(),
-              a("corresponding.author@institution.edu", 
-                href = "mailto:corresponding.author@institution.edu")
+    ". Our tool enables researchers to explore, visualize, gain new insights and answer specific questions related to the 
+     interplay between mitochondrial stress, translation attenuation and their impact on the composition of the nascent proteome."
+  ),
+
+                # Citation box - keeping custom CSS
+                div(
+                  style = "background: linear-gradient(to right, #f8f9fa, #ffffff); border-left: 4px solid #0062cc; 
+                     padding: 18px; margin: 40px 0; border-radius: 0 8px 8px 0;",
+                  strong("This application acompanies: ", style = "color: #333;"),
+                  p(
+                    style = "margin: 6px 0 0 0;",
+                    a(
+                      "Stępkowski TM, Linke V, Stadnik D, Zakrzewski M, Zawada AE, Serwa RA, Chacinska A. Temporal alterations of the nascent proteome in response to mitochondrial stress. Cell Rep. 2024 Oct 22;43(10):114803", 
+                      href =  "https://doi.org/10.1016/j.celrep.2024.114803",
+                      style = "color: #0062cc; text-decoration: none; font-weight: 500;"
+                    )
+                  )
+                ),
+                
+                # Stats tiles - keeping custom styling
+                fluidRow(
+                  column(
+                    width = 4,
+                    div(
+                      style = "background-color: #f1f7ff; padding: 15px; border-radius: 8px; text-align: center;",
+                      h4("4 datasets + meta-analysis", style = "color: #0062cc; margin: 0; font-size: 22px; font-weight: 600;"),
+                      p("explore, analyze , build new hypotheses", style = "margin: 5px 0 0 0; color: #555;")
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    div(
+                      style = "background-color: #f1f7ff; padding: 15px; border-radius: 8px; text-align: center;",
+                      h4("Interactive Visualisations", style = "color: #0062cc; margin: 0; font-size: 22px; font-weight: 600;"),
+                      p("to analyze your proteins of interest", style = "margin: 5px 0 0 0; color: #555;")
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    div(
+                      style = "background-color: #f1f7ff; padding: 15px; border-radius: 8px; text-align: center;",
+                      h4("AI resource assistant", style = "color: #0062cc; margin: 0; font-size: 22px; font-weight: 600;"),
+                      p("to help you perform custom analyses", style = "margin: 5px 0 0 0; color: #555;")
+                    )
+                  )
+                )
+              ),
+              
+              # Right side - Image with JavaScript
+              column(
+                width = 4, 
+                # Keeping the JavaScript for interactivity 
+                HTML("<div style='position: relative; cursor: pointer; width: 85%; margin: 0 auto; padding: 10;' ' 
+                     onclick='enlargeImage(this)' 
+                     onmouseover='showCaption(this)' 
+                     onmouseout='hideCaption(this)'>
+                       
+                       <!-- Image (80% size) -->
+                       <img src='static/abstract.jpg' alt='Graphical Abstract' 
+                     style='width: 100%; display: block; border-radius: 4px;'>
+                       
+                       <!-- Caption only shown on hover (initially hidden) -->
+                       <div class='img-caption' style='position: absolute; bottom: 0; left: 0; right: 0; 
+                                 background-color: rgba(0,0,0,0.6); color: white; 
+                                 padding: 15px; z-index: 2; opacity: 0; 
+                                 transition: opacity 0.3s ease;'>
+                       <h3 style='margin: 0; font-weight: 500;'>
+                      Temporal Alterations in The Nascent Proteome in Response to Mitochondrial Stress
+                     </h3>
+                       <p style='margin: 5px 0 0 0; font-size: 0.9em;'>
+                       Show High Resolution
+                     </p>
+                       </div>
+                       </div>
+                       
+                       <!-- Modal for enlarged image -->
+                       <div id='imageModal' style='display: none; position: fixed; z-index: 9999; 
+                           left: 0; top: 0; width: 100%; height: 100%; 
+                           background-color: rgba(0,0,0,0.9);'>
+                       <div style='display: flex; justify-content: center; align-items: center; height: 100%;'>
+                       <img id='enlargedImg' style='max-width: 90%; max-height: 90%; object-fit: contain;'>
+                       <div style='position: absolute; top: 20px; right: 30px; color: #f1f1f1; 
+              font-size: 40px; font-weight: bold; cursor: pointer;'
+                     onclick='closeModal()'>×</div>
+                       </div>
+                       </div>
+                       
+                       <script>
+                       function showCaption(element) {
+                         element.querySelector('.img-caption').style.opacity = '1';
+                       }
+                     
+                     function hideCaption(element) {
+                       element.querySelector('.img-caption').style.opacity = '0';
+                     }
+                     
+                     function enlargeImage(element) {
+                       var modal = document.getElementById('imageModal');
+                       var modalImg = document.getElementById('enlargedImg');
+                       var imgSrc = element.querySelector('img').src;
+                       
+                       modal.style.display = 'block';
+                       modalImg.src = imgSrc;
+                       
+                       // Prevent scrolling when modal is open
+                       document.body.style.overflow = 'hidden';
+                     }
+                     
+                     function closeModal() {
+                       document.getElementById('imageModal').style.display = 'none';
+                       document.body.style.overflow = 'auto';
+                     }
+                     
+                     // Close modal when clicking outside the image
+                     document.getElementById('imageModal').addEventListener('click', function(event) {
+                       if (event.target === this) {
+                         closeModal();
+                       }
+                     });
+                     </script>")
+              )
             )
           )
         )
@@ -68,25 +161,172 @@ ui <- function(id) {
     
     br(),
     
+   
+    
+    
+    # Capabilities and Abstract section
+    fluidRow(
+      column(
+        width = 5,
+        card(
+          style = "height: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+          card_header(
+            h3("Research Capabilities", style = "margin: 0; font-weight: 500;"),
+            style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
+          ),
+          card_body(
+            p("With this interactive tool, researchers can:"),
+            tags$ul(
+              style = "padding-left: 20px;",
+              tags$li("Explore datasets via interactive tables with advanced filtering"),
+              tags$li("Visualize protein expression changes during temporal alterations of the nascent proteome"),
+              tags$li("Analyze translation attenuation following CCCP or bortezomib treatment"),
+              tags$li("Examine translation dynamics post-EEF1A1 silencing"),
+              tags$li("Access meta-analysis data of dynamically regulated nascent proteins"),
+              tags$li("Leverage AI assistance for customized data exploration")
+            )
+          )
+        )
+      ),
+      
+      column(
+        width = 7,
+        card(
+          style = "height: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+          card_header(
+            h3("Study Abstract", style = "margin: 0; font-weight: 500;"),
+            style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
+          ),
+          card_body(
+            p(
+              style = "line-height: 1.6; font-size: 1.05em;",
+              "Under stress, protein synthesis is attenuated to preserve energy and mitigate challenges to protein homeostasis. Here, we describe, with high temporal resolution, the dynamic landscape of changes in the abundance of proteins synthesized upon stress from transient mitochondrial inner membrane depolarization. This nascent proteome was altered when global translation was attenuated by stress and began to normalize as translation was recovering. This transition was associated with a transient desynchronization of cytosolic and mitochondrial translation and recovery of cytosolic and mitochondrial ribosomal proteins. Further, the elongation factor EEF1A1 was downregulated upon mitochondrial stress, and its silencing mimicked the stress-induced nascent proteome remodeling, including alterations in the nascent respiratory chain proteins. Unexpectedly, the stress-induced alterations in the nascent proteome were independent of physiological protein abundance and turnover. In summary, we provide insights into the physiological and pathological consequences of mitochondrial function and dysfunction."
+            )
+          )
+        )
+      )
+    ),
+    
+    br(),
+    
+  # Dataset information with accordion
     card(
+      style = "border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
       card_header(
-        h2("Tool Information", style = "margin: 0;")
+        h3("Available Datasets", style = "margin: 0; font-weight: 500;"),
+        style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
       ),
       card_body(
-        p(
-          "This interactive resource tool was built using R Shiny and the Rhino framework 
-          by Appsilon. It allows for exploration of the dataset presented in our publication 
-          through various visualizations and filtering options."
+        p("This resource includes five comprehensive datasets that can be explored in the Data Browser tab:"),
+        
+        accordion(
+          accordion_panel(
+            "Dataset I: BONCAT - CCCP Stress and Recovery Time Course",
+            p("Temporal profile of nascent proteome changes during mitochondrial stress and recovery phases, showing dynamic regulation of protein synthesis in response to CCCP treatment."),
+            p("Key features: time points, fold changes, p-values, and GO enrichment analyses.")
+          ),
+          accordion_panel(
+            "Dataset II",
+            p("[Detailed description of Dataset II - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
+          ),
+          accordion_panel(
+            "Dataset III",
+            p("[Detailed description of Dataset III - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
+          ),
+          accordion_panel(
+            "Dataset IV",
+            p("[Detailed description of Dataset IV - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
+          ),
+          accordion_panel(
+            "Dataset V",
+            p("[Detailed description of Dataset V - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
+          )
+        )
+      )
+    ),
+    
+    br(),
+    
+    # Team info with modern layout
+    card(
+      style = "border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+      card_header(
+        h3("Research Team", style = "margin: 0; font-weight: 500;"),
+        style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
+      ),
+      card_body(
+        layout_column_wrap(
+          width = "250px",
+          style = "margin-top: 15px;",
+          
+          value_box(
+            title = "First author",
+            value = "Tomasz Stępkowski, PhD",
+            showcase = img(
+              src = "static/Stepkowski.png",
+              alt = "Tomasz Stępkowski",
+              style = "width: 100%; border-radius: 50%;"
+            ),
+            p("Research Institute"),
+            p(a("email@institution.edu", href = "mailto:email@institution.edu"))
+          ),
+          
+          value_box(
+            title = "Second author",
+            value = "Author Two, MD",
+            showcase = icon("user-graduate", class = "fa-2x"),
+            p("Medical University"),
+            p(a("email@university.edu", href = "mailto:email@university.edu"))
+          ),
+          
+          value_box(
+            title = "Principal Investigator",
+            value = "Author Three, PhD",
+            showcase = icon("envelope", class = "fa-2x"),
+            p("University Department"),
+            p(a("corresponding.author@institution.edu", href = "mailto:corresponding.author@institution.edu"))
+          )
         ),
-        h4("How to Use"),
-        p(
-          "Navigate through the tabs to access different analyses and visualizations. 
-          The 'Dataset browser' tab allows custom exploration of the data with filtering options."
-        ),
-        h4("Acknowledgments"),
-        p(
-          "This work was supported by [funding sources]. 
-          We thank [acknowledgments for technical support, etc.]."
+        
+        div(
+          style = "margin-top: 20px; padding-top: 15px; border-top: 1px solid #eaeaea;",
+          h4("Acknowledgments"),
+          p(
+            "This work was supported by [funding sources]. We thank [acknowledgments for technical support, etc.]."
+          )
+        )
+      )
+    ),
+    
+    br(),
+    
+    # Footer with technical info
+    card(
+      style = "border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+      card_body(
+        style = "padding: 15px;",
+        div(
+          style = "display: flex; justify-content: space-between; align-items: center;",
+          div(
+            p(
+              style = "margin: 0;",
+              "Built with ",
+              a("R Shiny", href = "https://shiny.posit.co/", target = "_blank"),
+              " and ",
+              a("Rhino framework", href = "https://appsilon.github.io/rhino/", target = "_blank")
+            )
+          ),
+          div(
+            p(
+              style = "margin: 0; text-align: right;",
+              "© 2024 Stępkowski et al. | ",
+              a(
+                "Source Code", 
+                href = "https://github.com/DatViseR/Cell_Reports_Stepkowski", 
+                target = "_blank"
+              )
+            )
+          )
         )
       )
     )
@@ -97,6 +337,6 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     # Server logic for the About module
-    # (likely minimal for an About page)
+    # (minimal for a static About page)
   })
 }

@@ -11,7 +11,7 @@ box::use(
 ui <- function(id) {
   ns <- NS(id)
   page_navbar(
-    title = "Dynamic nascent proteome in mitochondrial stress",
+    title = "Dynamic nascent proteome in mito-stress",
     navbar_options = navbar_options(
       bg = "#0062cc",
       underline = TRUE
