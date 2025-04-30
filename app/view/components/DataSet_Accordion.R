@@ -1,5 +1,5 @@
 box::use(
-  shiny[div, h4, p, HTML],
+  shiny[div, h4, p, HTML, tags, tagList],
   bslib[accordion, accordion_panel]
 )
 
@@ -97,65 +97,106 @@ create_dataset_panel <- function(
   )
 }
 
+
+
 #' Create a complete dataset accordion with all panels
 #' 
 #' @return A complete accordion with all dataset panels
 #' @export
 datasets_accordion <- function() {
-  accordion(
-    # Dataset I
-    create_dataset_panel(
-      dataset_title = "Dataset I: BONCAT - CCCP Stress and Recovery Time Course",
-      method = "BONCAT TMT PROTEOMICS",
-      experimental_design = "Temporal profiling of nascent proteome during mitochondrial stress (CCCP treatment) and recovery phases",
-      samples = "n = 5 time points (0h, 3h, 6h, 9h, 12h)",
-      details = "Dynamic regulation of protein synthesis in response to CCCP treatment showing temporal alterations in the nascent proteome. Dataset includes fold changes, p-values, and GO enrichment analyses.",
-      details_extra = "This dataset reveals how mitochondrial stress affects protein synthesis with high temporal resolution.",
-      figures = "Figures 1B-D, 2A-C, S1A-B in the manuscript"
-    ),
+  # Add CSS for hover effects
+  hover_css <- tags$style(HTML("
+    /* Add gentle hover effect to accordion headers */
+    .accordion-button {
+      transition: all 0.3s ease-in-out !important;
+    }
     
-    # Dataset II
-    create_dataset_panel(
-      dataset_title = "Dataset II: Bortezomib Treatment Effects on Translation",
-      method = "BONCAT LC-MS/MS",
-      experimental_design = "Comparison of nascent proteome changes under proteasome inhibition",
-      samples = "n = 3 (Control, Bortezomib treatment, Follow-up)",
-      details = "Exploration of how proteasome inhibition via Bortezomib affects translation processes and the composition of the nascent proteome.",
-      details_extra = "This dataset allows comparison with CCCP-induced stress effects.",
-      figures = "Figures 3A-C, S2A-C in the manuscript"
-    ),
+    .accordion-button:hover {
+      background-color: #f0f7ff !important;
+      color: #0056b3 !important;
+      transform: translateX(3px) !important;
+      box-shadow: -3px 0px 0px 0px #0062cc !important;
+    }
     
-    # Dataset III
-    create_dataset_panel(
-      dataset_title = "Dataset III: EEF1A1 Silencing Impact on Translation Dynamics",
-      method = "siRNA silencing + BONCAT proteomics",
-      experimental_design = "Examination of translation dynamics after EEF1A1 silencing",
-      samples = "n = 4 (Control siRNA, EEF1A1 siRNA replicates)",
-      details = "Investigation of how EEF1A1 silencing affects the nascent proteome composition, revealing its role in the stress response pathway.",
-      details_extra = "The dataset provides insights into translational regulation mechanisms during mitochondrial stress.",
-      figures = "Figures 4A-D, S3A-B in the manuscript"
-    ),
+    /* Add subtle indicator that items are interactive */
+    .accordion-button:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      height: 100%;
+      width: 3px;
+      background-color: transparent;
+      transition: background-color 0.3s ease;
+    }
     
-    # Dataset IV
-    create_dataset_panel(
-      dataset_title = "Dataset IV: HCMV Infection and Mitochondrial Stress Proteomics",
-      method = "Viral infection model + BONCAT",
-      experimental_design = "Analysis of HCMV infection impact on nascent proteome under mitochondrial stress",
-      samples = "n = 6 (Control, HCMV infected, with/without CCCP treatment)",
-      details = "This dataset explores how viral infection (HCMV) interacts with mitochondrial stress response pathways to affect protein synthesis.",
-      details_extra = "The comparative analysis provides insights into pathogen-induced stress responses.",
-      figures = "Figures 5A-C, S4A-D in the manuscript"
-    ),
+    .accordion-button:hover:before {
+      background-color: #0062cc;
+    }
     
-    # Dataset V
-    create_dataset_panel(
-      dataset_title = "Dataset V: Meta-Analysis of Dynamically Regulated Nascent Proteins",
-      method = "Integrated meta-analysis",
-      experimental_design = "Cross-dataset analysis of consistently regulated proteins across stress conditions",
-      samples = "n = All datasets combined (>2000 proteins analyzed)",
-      details = "Comprehensive meta-analysis identifying proteins consistently regulated across all stress conditions.",
-      details_extra = "This dataset highlights key proteins and pathways central to the cellular stress response, providing a systems-level view of mitochondrial stress adaptation.",
-      figures = "Figures 6A-D, S5A-C in the manuscript"
+    /* Change cursor to pointer */
+    .accordion-button {
+      cursor: pointer;
+    }
+  "))
+  
+  # Return the styled accordion
+  tagList(
+    hover_css,
+    accordion(
+      # Dataset I
+      create_dataset_panel(
+        dataset_title = "Dataset I: BONCAT - CCCP Stress and Recovery Time Course",
+        method = "BONCAT (30 min AHA pulse), TMT (Tandem mass tagging) multiplexed proteomics",
+        experimental_design = "Time course -  4 30min intervals - nascent protein labeling during treatment and wash from CCCP (translation inhibition and recovery)", 
+        samples = "n = 32; replicates = 3; time points (0-30 (STRESS I, 30-60min STRES II, 60-90min RECOVERY I, 90-120 min RECOVERY II )",
+        details = "Translation is rapidly attenuated and rapidly recovers during first 30 min interval of wash, proteins related to ribosome, translation, OXPHOS and splicing are the most dynamically regulated",
+        details_extra = "This is the preprocessed normalized data (translation attenuation was assesed on raw intensities - check the article)",
+        figures = "This data is related to figure 1,3,4,5,7 in the Cell Reports article"
+      ),
+      
+      # Dataset II
+      create_dataset_panel(
+        dataset_title = "Dataset II: Bortezomib Treatment Effects on Translation",
+        method = "BONCAT LC-MS/MS",
+        experimental_design = "Comparison of nascent proteome changes under proteasome inhibition",
+        samples = "n = 3 (Control, Bortezomib treatment, Follow-up)",
+        details = "Exploration of how proteasome inhibition via Bortezomib affects translation processes and the composition of the nascent proteome.",
+        details_extra = "This dataset allows comparison with CCCP-induced stress effects.",
+        figures = "Figures 3A-C, S2A-C in the manuscript"
+      ),
+      
+      # Dataset III
+      create_dataset_panel(
+        dataset_title = "Dataset III: EEF1A1 Silencing Impact on Translation Dynamics",
+        method = "siRNA silencing + BONCAT proteomics",
+        experimental_design = "Examination of translation dynamics after EEF1A1 silencing",
+        samples = "n = 4 (Control siRNA, EEF1A1 siRNA replicates)",
+        details = "Investigation of how EEF1A1 silencing affects the nascent proteome composition, revealing its role in the stress response pathway.",
+        details_extra = "The dataset provides insights into translational regulation mechanisms during mitochondrial stress.",
+        figures = "Figures 4A-D, S3A-B in the manuscript"
+      ),
+      
+      # Dataset IV
+      create_dataset_panel(
+        dataset_title = "Dataset IV: HCMV Infection and Mitochondrial Stress Proteomics",
+        method = "Viral infection model + BONCAT",
+        experimental_design = "Analysis of HCMV infection impact on nascent proteome under mitochondrial stress",
+        samples = "n = 6 (Control, HCMV infected, with/without CCCP treatment)",
+        details = "This dataset explores how viral infection (HCMV) interacts with mitochondrial stress response pathways to affect protein synthesis.",
+        details_extra = "The comparative analysis provides insights into pathogen-induced stress responses.",
+        figures = "Figures 5A-C, S4A-D in the manuscript"
+      ),
+      
+      # Dataset V
+      create_dataset_panel(
+        dataset_title = "Dataset V: Meta-Analysis of Dynamically Regulated Nascent Proteins",
+        method = "Integrated meta-analysis",
+        experimental_design = "Cross-dataset analysis of consistently regulated proteins across stress conditions",
+        samples = "n = All datasets combined (>2000 proteins analyzed)",
+        details = "Comprehensive meta-analysis identifying proteins consistently regulated across all stress conditions.",
+        details_extra = "This dataset highlights key proteins and pathways central to the cellular stress response, providing a systems-level view of mitochondrial stress adaptation.",
+        figures = "Figures 6A-D, S5A-C in the manuscript"
+      )
     )
   )
 }
