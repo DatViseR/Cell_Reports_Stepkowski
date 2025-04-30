@@ -1,12 +1,12 @@
 box::use(
-  shiny[div, h4, p, HTML, tags, tagList],
+  shiny[div, h5, p, HTML, tags, tagList],
   bslib[accordion, accordion_panel]
 )
 
 #' Create a formatted section for dataset information
 #' 
 #' @param title The title of the section
-#' @param content The content text
+#' @param content The content text or HTML
 #' @param color The border color for styling
 #' @param icon Optional icon to display (HTML)
 #' 
@@ -15,13 +15,20 @@ box::use(
 create_info_section <- function(title, content, color, icon = NULL) {
   div(
     style = paste0("background-color: #f8f9fa; border-left: 4px solid ", color, 
-                   "; padding: 15px; border-radius: 0 8px 8px 0;"),
+                   "; padding: 12px; border-radius: 0 8px 8px 0; height: 100%; font-size: 0.9rem;"),
     div(
       style = "display: flex; align-items: center; gap: 8px;",
-      h4(title, style = paste0("margin-top: 0; color: ", color, "; font-weight: 600;")),
+      h5(title, style = paste0("margin-top: 0; margin-bottom: 8px; color: ", color, "; font-weight: 600; font-size: 0.95rem;")),
       if (!is.null(icon)) HTML(icon) else NULL
     ),
-    p(content, style = "margin-bottom: 0;")
+    # Handle content differently based on type
+    if (is.character(content)) {
+      # If it's a simple string, wrap in p()
+      p(content, style = "margin-bottom: 0;")
+    } else {
+      # Otherwise, assume it's already HTML or UI elements
+      div(style = "font-size: 0.9rem;", content)
+    }
   )
 }
 
@@ -49,66 +56,70 @@ create_dataset_panel <- function(
   accordion_panel(
     dataset_title,
     div(
-      style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;",
+      style = "font-size: 0.9rem;",
       
-      # Method section
-      create_info_section(
-        "Method:", 
-        method, 
-        "#0062cc", 
-        icon = '<i class="fas fa-flask" style="color: #0062cc;"></i>'
-      ),
-      
-      # Experimental Design section
-      create_info_section(
-        "Experimental Design:", 
-        experimental_design, 
-        "#6c757d",
-        icon = '<i class="fas fa-project-diagram" style="color: #6c757d;"></i>'
-      ),
-      
-      # Samples section
-      create_info_section(
-        "Samples:", 
-        samples, 
-        "#28a745",
-        icon = '<i class="fas fa-vial" style="color: #28a745;"></i>'
-      )
-    ),
-    
-    # Details section
-    div(
-      style = "background-color: #f9f9f9; padding: 15px; margin-top: 20px; border-radius: 8px;",
-      h4("Details:", style = "margin-top: 0; color: #333; font-weight: 600;"),
-      p(details),
-      if (!is.null(details_extra)) p(details_extra) else NULL
-    ),
-    
-    # Figures section
-    div(
-      style = "background-color: #f1f7ff; padding: 15px; margin-top: 20px; border-radius: 8px;",
+      # Responsive grid layout - all sections in one row
       div(
-        style = "display: flex; align-items: center; gap: 8px;",
-        h4("Corresponding Figures:", style = "margin-top: 0; color: #0062cc; font-weight: 600;"),
-        HTML('<i class="fas fa-chart-line" style="color: #0062cc;"></i>')
-      ),
-      p(figures)
+        style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;",
+        
+        # Method section
+        create_info_section(
+          "Method:", 
+          method, 
+          "#0062cc", 
+          icon = '<i class="fas fa-flask" style="color: #0062cc;"></i>'
+        ),
+        
+        # Experimental Design section
+        create_info_section(
+          "Experimental Design:", 
+          experimental_design, 
+          "#6c757d",
+          icon = '<i class="fas fa-project-diagram" style="color: #6c757d;"></i>'
+        ),
+        
+        # Samples section
+        create_info_section(
+          "Samples:", 
+          samples, 
+          "#28a745",
+          icon = '<i class="fas fa-vial" style="color: #28a745;"></i>'
+        ),
+        
+        # Figures section
+        create_info_section(
+          "Corresponding Figures:", 
+          figures, 
+          "#0062cc",
+          icon = '<i class="fas fa-chart-line" style="color: #0062cc;"></i>'
+        ),
+        
+        # Details section - now in the same row
+        create_info_section(
+          "Details:", 
+          tagList(
+            p(details, style = "margin-bottom: 8px;"),
+            if (!is.null(details_extra)) p(details_extra, style = "margin-bottom: 0;") else NULL
+          ),
+          "#333",
+          icon = '<i class="fas fa-info-circle" style="color: #333;"></i>'
+        )
+      )
     )
   )
 }
-
-
 
 #' Create a complete dataset accordion with all panels
 #' 
 #' @return A complete accordion with all dataset panels
 #' @export
 datasets_accordion <- function() {
-  # Add CSS for hover effects
+  # Add CSS for hover effects and font sizing
   hover_css <- tags$style(HTML("
     /* Add gentle hover effect to accordion headers */
     .accordion-button {
       transition: all 0.3s ease-in-out !important;
+      font-size: 0.95rem !important;
     }
     
     .accordion-button:hover {
@@ -137,6 +148,23 @@ datasets_accordion <- function() {
     .accordion-button {
       cursor: pointer;
     }
+    
+    /* Bullet points styling */
+    .accordion-body ul {
+      padding-left: 18px;
+      margin-bottom: 0;
+    }
+    
+    .accordion-body li {
+      margin-bottom: 3px;
+      font-size: 0.85rem;
+    }
+    
+    /* Make all paragraphs in accordion smaller */
+    .accordion-body p {
+      font-size: 0.85rem;
+      margin-bottom: 3px;
+    }
   "))
   
   # Return the styled accordion
@@ -146,18 +174,26 @@ datasets_accordion <- function() {
       # Dataset I
       create_dataset_panel(
         dataset_title = "Dataset I: BONCAT - CCCP Stress and Recovery Time Course",
-        method = "BONCAT (30 min AHA pulse), TMT (Tandem mass tagging) multiplexed proteomics",
-        experimental_design = "Time course -  4 30min intervals - nascent protein labeling during treatment and wash from CCCP (translation inhibition and recovery)", 
-        samples = "n = 32; replicates = 3; time points (0-30 (STRESS I, 30-60min STRES II, 60-90min RECOVERY I, 90-120 min RECOVERY II )",
+        method = tags$ul(
+          tags$li("BONCAT LC-MS/MS"),
+          tags$li("30 min AHA pulse labeling"),
+          tags$li("TMT multiplexed proteomics")
+        ),
+        experimental_design = "Time course - 4 30min intervals - nascent protein labeling during treatment and wash from CCCP (translation inhibition and recovery)", 
+        samples = "n = 32; replicates = 3; time points (0-30 (STRESS I), 30-60min (STRES II), 60-90min (RECOVERY I), 90-120 min (RECOVERY II))",
         details = "Translation is rapidly attenuated and rapidly recovers during first 30 min interval of wash, proteins related to ribosome, translation, OXPHOS and splicing are the most dynamically regulated",
         details_extra = "This is the preprocessed normalized data (translation attenuation was assesed on raw intensities - check the article)",
-        figures = "This data is related to figure 1,3,4,5,7 in the Cell Reports article"
+        figures = "Related to figures 1,3,4,5,7 in the Cell Reports article"
       ),
       
       # Dataset II
       create_dataset_panel(
         dataset_title = "Dataset II: Bortezomib Treatment Effects on Translation",
-        method = "BONCAT LC-MS/MS",
+        method = tags$ul(
+          tags$li("BONCAT LC-MS/MS"),
+          tags$li("30 min AHA pulse labeling"),
+          tags$li("TMT proteomics")
+        ),
         experimental_design = "Comparison of nascent proteome changes under proteasome inhibition",
         samples = "n = 3 (Control, Bortezomib treatment, Follow-up)",
         details = "Exploration of how proteasome inhibition via Bortezomib affects translation processes and the composition of the nascent proteome.",
@@ -168,7 +204,11 @@ datasets_accordion <- function() {
       # Dataset III
       create_dataset_panel(
         dataset_title = "Dataset III: EEF1A1 Silencing Impact on Translation Dynamics",
-        method = "siRNA silencing + BONCAT proteomics",
+        method = tags$ul(
+          tags$li("siRNA silencing"),
+          tags$li("BONCAT proteomics"),
+          tags$li("30 min AHA pulse labeling")
+        ),
         experimental_design = "Examination of translation dynamics after EEF1A1 silencing",
         samples = "n = 4 (Control siRNA, EEF1A1 siRNA replicates)",
         details = "Investigation of how EEF1A1 silencing affects the nascent proteome composition, revealing its role in the stress response pathway.",
@@ -179,7 +219,11 @@ datasets_accordion <- function() {
       # Dataset IV
       create_dataset_panel(
         dataset_title = "Dataset IV: HCMV Infection and Mitochondrial Stress Proteomics",
-        method = "Viral infection model + BONCAT",
+        method = tags$ul(
+          tags$li("Viral infection model"),
+          tags$li("BONCAT proteomics"),
+          tags$li("30 min AHA pulse labeling")
+        ),
         experimental_design = "Analysis of HCMV infection impact on nascent proteome under mitochondrial stress",
         samples = "n = 6 (Control, HCMV infected, with/without CCCP treatment)",
         details = "This dataset explores how viral infection (HCMV) interacts with mitochondrial stress response pathways to affect protein synthesis.",
@@ -190,7 +234,11 @@ datasets_accordion <- function() {
       # Dataset V
       create_dataset_panel(
         dataset_title = "Dataset V: Meta-Analysis of Dynamically Regulated Nascent Proteins",
-        method = "Integrated meta-analysis",
+        method = tags$ul(
+          tags$li("Integrated meta-analysis"),
+          tags$li("Multi-dataset comparison"),
+          tags$li("Merged proteomics data")
+        ),
         experimental_design = "Cross-dataset analysis of consistently regulated proteins across stress conditions",
         samples = "n = All datasets combined (>2000 proteins analyzed)",
         details = "Comprehensive meta-analysis identifying proteins consistently regulated across all stress conditions.",

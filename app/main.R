@@ -4,12 +4,19 @@ box::use(
   app/view/About_module,
   app/view/Data_browser,
   app/view/Temporal_alterations,
+  app/dependencies[font_awesome]
   
 )
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
+  # Load the font awesome stylesheet
+  tagList(
+    font_awesome
+  ),
+  
+  
   page_navbar(
     title = "Dynamic nascent proteome in mito-stress",
     navbar_options = navbar_options(
