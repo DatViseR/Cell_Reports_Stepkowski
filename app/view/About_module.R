@@ -1,6 +1,6 @@
 box::use(
   shiny[div, h1, h2, h3, h4, p, a, br, strong, em, HTML, moduleServer, NS, img, 
-        tags, tabPanel, fluidRow, column, icon],
+        tags, tabPanel, fluidRow, column, icon, span],
   bslib[card, card_header, card_body, accordion, accordion_panel, value_box, layout_column_wrap],
   
   app/view/components/DataSet_Accordion[datasets_accordion]
@@ -228,58 +228,103 @@ ui <- function(id) {
     
     br(),
     
-    # Team info with modern layout
-    card(
-      style = "border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
-      card_header(
-        h3("Research Team", style = "margin: 0; font-weight: 500;"),
-        style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
-      ),
-      card_body(
+  # Team info with simplified layout
+  card(
+    style = "border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
+    card_header(
+      h3("Authors", style = "margin: 0; font-weight: 500;"),
+      style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
+    ),
+    card_body(
+      # Simple CSS for equal heights
+      tags$style(HTML("
+      /* Set equal heights for all value boxes */
+      .team-box .bslib-value-box {
+        height: 100%;
+        min-height: 280px;
+      }
+      
+      /* Center text in coauthors box */
+      #coauthors-box p {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      
+      /* Logo styling */
+      .imol-logo {
+        width: 120px;
+        margin: 12px auto 0 auto;
+        display: block;
+      }
+    ")),
+      
+      div(
+        class = "team-box",
         layout_column_wrap(
           width = "250px",
           style = "margin-top: 15px;",
           
+          # First author
           value_box(
-            title = "First author",
+            title = "First author / developer of this app",
             value = "Tomasz Stępkowski, PhD",
             showcase = img(
               src = "static/Stepkowski.png",
               alt = "Tomasz Stępkowski",
               style = "width: 100%; border-radius: 50%;"
             ),
-            p("Research Institute"),
-            p(a("email@institution.edu", href = "mailto:email@institution.edu"))
+            p("Freelance R/Shiny developer, Life Science Data Analyst"),
+            p("IMol - Polish Academy of Sciences (Alumnus)"),
+            p(a("datviser@gmail.com", href = "mailto:datviser@gmail.com"))
           ),
           
-          value_box(
-            title = "Second author",
-            value = "Author Two, MD",
-            showcase = icon("user-graduate", class = "fa-2x"),
-            p("Medical University"),
-            p(a("email@university.edu", href = "mailto:email@university.edu"))
-          ),
-          
+          # Principal Investigator
           value_box(
             title = "Principal Investigator",
-            value = "Author Three, PhD",
-            showcase = icon("envelope", class = "fa-2x"),
-            p("University Department"),
-            p(a("corresponding.author@institution.edu", href = "mailto:corresponding.author@institution.edu"))
-          )
-        ),
-        
-        div(
-          style = "margin-top: 20px; padding-top: 15px; border-top: 1px solid #eaeaea;",
-          h4("Acknowledgments"),
-          p(
-            "This work was supported by [funding sources]. We thank [acknowledgments for technical support, etc.]."
+            value = "Prof. Agnieszka Chacinska, PhD",
+            showcase = img(
+              src = "static/Chacinska.png",
+              alt = "Agnieszka Chacinska",
+              style = "width: 100%; border-radius: 50%;"
+            ),
+            p("IMol - Polish Academy of Sciences"),
+            p("Head of the Laboratory of Mitochondrial Biogenesis"),
+            p(a("achacinska@imol.institute", href = "mailto:a.chacinska@imol.institute"))
+          ),
+          
+          # Coauthors - simplified
+          value_box(
+            id = "coauthors-box",
+            # Create a properly structured title with image and text side by side
+             
+            title = div(style = "font-weight: bold;",
+                p("The study was conducted at"),
+                p(span(img(
+                  src = "static/Imol.png", 
+                  alt = "IMol Logo",
+                  style = "width: 80px; height: auto;"
+                )),a("(Polish Academy of Sciences)", href = "https://imol.institute/")),
+                br(),
+                  p("The other coauthors of the study are:")
+              ),
+           
+            # Remove showcase and value
+            showcase = NULL,
+            value = NULL,
+            
+            # Coauthor list
+            p("Vanessa Linke, PhD (IMol Alumna, IIMCB)"),
+            p("Dorota Stadnik, PhD (IMol Alumna)"),
+            p("Maciej Zakrzewski, PhD (IMol)"),
+            p("Anna Zawada, PhD (IMol Alumna, ICTER)"),
+            p("Remigiusz Serwa, PhD (IMol)")
+            
+            
           )
         )
       )
-    ),
-    
-    br(),
+    )
+  ),
     
     # Footer with technical info
     card(
@@ -298,9 +343,16 @@ ui <- function(id) {
             )
           ),
           div(
-            p(
+                        p(
               style = "margin: 0; text-align: right;",
-              "© 2024 Stępkowski et al. | ",
+              "Developed by Tomasz Stępkowski",
+              img(
+                src = "static/Datviser.png", 
+                alt = "DatViseR Logo",
+                style = "height: 60px; width:auto, vertical-align: middle;"
+              ),
+              
+              
               a(
                 "Source Code", 
                 href = "https://github.com/DatViseR/Cell_Reports_Stepkowski", 
