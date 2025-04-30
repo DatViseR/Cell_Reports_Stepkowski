@@ -1,7 +1,10 @@
 box::use(
   shiny[div, h1, h2, h3, h4, p, a, br, strong, em, HTML, moduleServer, NS, img, 
         tags, tabPanel, fluidRow, column, icon],
-  bslib[card, card_header, card_body, accordion, accordion_panel, value_box, layout_column_wrap]
+  bslib[card, card_header, card_body, accordion, accordion_panel, value_box, layout_column_wrap],
+  
+  app/view/components/DataSet_Accordion[datasets_accordion]
+  
 )
 
 #' @export
@@ -171,18 +174,18 @@ ui <- function(id) {
         card(
           style = "height: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
           card_header(
-            h3("Research Capabilities", style = "margin: 0; font-weight: 500;"),
+            h3("How you can interact with this data resource", style = "margin: 0; font-weight: 500;"),
             style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
           ),
-          card_body(
-            p("With this interactive tool, researchers can:"),
+          card_body( style = "padding: 20px;",
+            p("Using this interactive tool, researchers can:"),
             tags$ul(
               style = "padding-left: 20px;",
-              tags$li("Explore datasets via interactive tables with advanced filtering"),
-              tags$li("Visualize protein expression changes during temporal alterations of the nascent proteome"),
-              tags$li("Analyze translation attenuation following CCCP or bortezomib treatment"),
-              tags$li("Examine translation dynamics post-EEF1A1 silencing"),
-              tags$li("Access meta-analysis data of dynamically regulated nascent proteins"),
+              tags$li("Explore all datasets via interactive tables with intuitive filtering and sorting"),
+              tags$li("Visualize protein expression changes during temporal alterations of the nascent proteome (during translation attenuation and recovery of inhibited protein synthesis)"),
+              tags$li("Compare nascent proteome alterations following mitochondrial stress or proteasome inhibition"),
+              tags$li("Compare nascent proteome alterations following EEF1A1 silencing +-mitochondrial stress"),
+              tags$li("Access meta-analysis data for dynamically regulated nascent proteins"),
               tags$li("Leverage AI assistance for customized data exploration")
             )
           )
@@ -194,12 +197,12 @@ ui <- function(id) {
         card(
           style = "height: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);",
           card_header(
-            h3("Study Abstract", style = "margin: 0; font-weight: 500;"),
+            h3("Summary of the study", style = "margin: 0; font-weight: 500;"),
             style = "background-color: #f8f9fa; border-bottom: 1px solid #eaeaea;"
           ),
           card_body(
             p(
-              style = "line-height: 1.6; font-size: 1.05em;",
+              style = "line-height: 1.6; font-size: 1.05em; padding: 20px;",
               "Under stress, protein synthesis is attenuated to preserve energy and mitigate challenges to protein homeostasis. Here, we describe, with high temporal resolution, the dynamic landscape of changes in the abundance of proteins synthesized upon stress from transient mitochondrial inner membrane depolarization. This nascent proteome was altered when global translation was attenuated by stress and began to normalize as translation was recovering. This transition was associated with a transient desynchronization of cytosolic and mitochondrial translation and recovery of cytosolic and mitochondrial ribosomal proteins. Further, the elongation factor EEF1A1 was downregulated upon mitochondrial stress, and its silencing mimicked the stress-induced nascent proteome remodeling, including alterations in the nascent respiratory chain proteins. Unexpectedly, the stress-induced alterations in the nascent proteome were independent of physiological protein abundance and turnover. In summary, we provide insights into the physiological and pathological consequences of mitochondrial function and dysfunction."
             )
           )
@@ -219,29 +222,7 @@ ui <- function(id) {
       card_body(
         p("This resource includes five comprehensive datasets that can be explored in the Data Browser tab:"),
         
-        accordion(
-          accordion_panel(
-            "Dataset I: BONCAT - CCCP Stress and Recovery Time Course",
-            p("Temporal profile of nascent proteome changes during mitochondrial stress and recovery phases, showing dynamic regulation of protein synthesis in response to CCCP treatment."),
-            p("Key features: time points, fold changes, p-values, and GO enrichment analyses.")
-          ),
-          accordion_panel(
-            "Dataset II",
-            p("[Detailed description of Dataset II - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
-          ),
-          accordion_panel(
-            "Dataset III",
-            p("[Detailed description of Dataset III - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
-          ),
-          accordion_panel(
-            "Dataset IV",
-            p("[Detailed description of Dataset IV - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
-          ),
-          accordion_panel(
-            "Dataset V",
-            p("[Detailed description of Dataset V - This will be completed with specific information about the dataset content, experimental design, and key variables.]")
-          )
-        )
+        datasets_accordion()
       )
     ),
     
