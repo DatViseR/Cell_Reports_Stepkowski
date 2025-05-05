@@ -188,17 +188,20 @@ datasets_accordion <- function() {
       
       # Dataset II
       create_dataset_panel(
-        dataset_title = "Dataset II: Bortezomib Treatment Effects on Translation",
+        dataset_title = "Dataset II: CCCP or Bortezomib vs. DMSO",
         method = tags$ul(
           tags$li("BONCAT LC-MS/MS"),
-          tags$li("30 min AHA pulse labeling"),
-          tags$li("TMT proteomics")
+          tags$li("1 hour AHA pulse labeling"),
+          tags$li("TMT multiplexed proteomics")
         ),
-        experimental_design = "Comparison of nascent proteome changes under proteasome inhibition",
-        samples = "n = 3 (Control, Bortezomib treatment, Follow-up)",
-        details = "Exploration of how proteasome inhibition via Bortezomib affects translation processes and the composition of the nascent proteome.",
-        details_extra = "This dataset allows comparison with CCCP-induced stress effects.",
-        figures = "Figures 3A-C, S2A-C in the manuscript"
+        experimental_design = " 2.5h pretreatment with 20nm Bortezomib/DMSO
+followed by 1h labeling with 2mM AHA together with 20nM Bortezomib or 8uM CCCP or DMSO",
+        samples = "Replicates n = 4, samples ",
+        details = "To estimate how strong the impact of protein degradation is on the nascent proteome and translation, 
+        we treated the cells with the proteasome inhibitor bortezomib, which increased the abundance of ubiquitinated proteins 
+        but in our conditions did not induce the rapid inhibition of cytosolic translation",
+        details_extra = "Pronouced downregulation or ribosomal proteins is visible post CCCP treatment but not post bortezomib treatment.",
+        figures = "Related to figure 2 in the manuscript"
       ),
       
       # Dataset III

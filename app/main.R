@@ -17,7 +17,7 @@ box::use(
 ui <- function(id) {
   ns <- NS(id)
   # Load the font awesome stylesheet
-
+ 
   
   
   page_navbar(
