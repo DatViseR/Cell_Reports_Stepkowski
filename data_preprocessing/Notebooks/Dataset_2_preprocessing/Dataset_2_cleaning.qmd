@@ -1,0 +1,52 @@
+---
+title: "Dataset_2_cleaning"
+format: html
+---
+
+## Uploading raw data
+```{r}
+use("readr", c("read_csv", "locale"))
+use("here", "here")
+use("arrow", "write_parquet")
+use("dplyr", c("filter", "select", "mutate", "glimpse"))
+
+
+Dataset_2 <- read_csv(here("data_preprocessing/Notebooks/Dataset_2_preprocessing/Dataset_2.csv"), 
+    locale = locale(decimal_mark = ","))
+View(Dataset_2)
+
+```
+
+# Selecting crucial data
+```{r}
+
+Dataset_2_cleaned <-
+  
+  Dataset_2 |>
+  select(Gene_names, Leading_razor_protein, Protein_names,  starts_with("Log"), starts_with("-Log")) |>
+  # unlog -Log10 pvalues
+ mutate(p_value_Bortezomib_DMSO = 10^(-`-Log10_p-value_Bortezomib_DMSO`),
+        p_value_CCCP_DMSO = 10^(-`-Log10_p-value_CCCP_DMSO`)) |>
+  mutate(q_value_Bortezomib_DMSO = p.adjust(p_value_Bortezomib_DMSO , method = "BH"),
+         q_value_CCCP_DMSO = p.adjust(p_value_CCCP_DMSO , method = "BH")) |>
+  # drop unlogged pvalues
+  select(-`p_value_Bortezomib_DMSO`, -`p_value_CCCP_DMSO`)
+      
+glimpse(Dataset_2_cleaned)
+```
+
+
+```{r}
+
+# Save the cleaned long format data for use in the application
+arrow::write_parquet(Dataset_2_cleaned, here("data", "Dataset_2.parquet"))
+
+
+
+```
+
+
+
+
+
+

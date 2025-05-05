@@ -4,6 +4,11 @@ box::use(
   app/view/About_module,
   app/view/Data_browser,
   app/view/Temporal_alterations,
+  app/view/CCCP_vs_Bortezomib,
+  app/view/Silencing_EEF1A1,
+  app/view/THRONCAT,
+  app/view/Meta_analysis,
+  app/view/AI
  
   
 )
@@ -24,10 +29,11 @@ ui <- function(id) {
     nav_panel(title = "About", About_module$ui(ns("about"))),
     nav_panel(title = "Dataset browser", Data_browser$ui(ns("dataset_browser"))),
     nav_panel(title = "Temporal alterations",Temporal_alterations$ui(ns("temporal_alterations"))),
-    #nav_panel(title = "CCCP vs. Bortezomib", CCCP_vs_Bortezomib$ui(ns("CCCP_vs_Bortezomib"))),
-    #nav_panel(title = "Silencing EEF1A1 +-CCCP", Silencing_EEF1A1$ui(ns("Silencing_EEF1A1"))),
-    #nav_panel(title = "THRONCAT", THRONCAT$ui(ns("THRONCAT"))), 
-    #nav_panel(title = "Meta-analysis", Meta_analysis$ui(ns("Meta_analysis"))),
+    nav_panel(title = "CCCP vs. Bortezomib", CCCP_vs_Bortezomib$ui(ns("CCCP_vs_Bortezomib"))),
+    nav_panel(title = "Silencing EEF1A1 +-CCCP", Silencing_EEF1A1$ui(ns("Silencing_EEF1A1"))),
+    nav_panel(title = "THRONCAT", THRONCAT$ui(ns("THRONCAT"))), 
+    nav_panel(title = "Meta-analysis", Meta_analysis$ui(ns("Meta_analysis"))),
+    nav_panel(title = "AI assisted analysis", AI$ui(ns("AI"))),
    
     nav_spacer(),
     nav_menu(
