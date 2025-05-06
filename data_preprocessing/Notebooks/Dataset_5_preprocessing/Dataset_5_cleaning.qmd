@@ -1,0 +1,24 @@
+---
+title: "Dataset_5_cleaning"
+format: html
+---
+
+```{r}
+use("readr", c("read_csv", "locale", "cols", "col_integer"))
+use("here", "here")
+use("dplyr", c("select", "glimpse"))
+Dataset_5 <- read_csv(here("data_preprocessing/Notebooks/Dataset_5_preprocessing/Dataset_5.csv"), 
+    col_types = cols(`significant in n/4 datasets` = col_integer()), 
+    locale = locale(decimal_mark = ",")) |> select(-`Gene_single`)
+
+glimpse(Dataset_5)
+```
+
+```{r}
+#Save a csv for Dataset_5_cleaned for use in the application 
+write.csv(Dataset_5, here("data", "Dataset_5_cleaned.csv"), row.names = FALSE)
+
+
+
+```
+
