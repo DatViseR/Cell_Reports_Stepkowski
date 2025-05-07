@@ -1,6 +1,6 @@
 box::use(
   shiny[moduleServer, NS, selectInput, textAreaInput, actionButton, div, h3, h4, p, br, 
-        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput],
+        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot],
   bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel]
 )
 

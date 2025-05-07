@@ -13,14 +13,27 @@ Dataset_5 <- read_csv(here("data_preprocessing/Notebooks/Dataset_5_preprocessing
   
   #rank based on 'mean log2(fold)'  
   mutate(rank = rank(-`mean log2(fold)`, ties.method = "first")) 
-         
+       
   
-
-
-
-
 glimpse(Dataset_5)
 ```
+
+
+
+```{r}
+# Create a columns with bins = 0.1 for the mean log2(fold)
+Dataset_5 <- 
+  Dataset_5 |> 
+  mutate(bins = cut(`mean log2(fold)`, 
+                    breaks = seq(-2, 2, by = 0.1), 
+                    include.lowest = TRUE)) 
+
+```
+
+
+
+
+
 
 ```{r}
 #Save a csv for Dataset_5_cleaned for use in the application 
