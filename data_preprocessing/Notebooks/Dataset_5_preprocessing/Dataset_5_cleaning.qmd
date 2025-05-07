@@ -9,7 +9,7 @@ use("here", "here")
 use("dplyr", c("select", "glimpse", "mutate"))
 Dataset_5 <- read_csv(here("data_preprocessing/Notebooks/Dataset_5_preprocessing/Dataset_5.csv"), 
     col_types = cols(`significant in n/4 datasets` = col_integer()), 
-    locale = locale(decimal_mark = ",")) |> select(-`Gene_single`) |>
+    locale = locale(decimal_mark = ",")) |> 
   
   #rank based on 'mean log2(fold)'  
   mutate(rank = rank(-`mean log2(fold)`, ties.method = "first")) 
@@ -27,6 +27,21 @@ Dataset_5 <-
   mutate(bins = cut(`mean log2(fold)`, 
                     breaks = seq(-2, 2, by = 0.1), 
                     include.lowest = TRUE)) 
+
+```
+
+
+```{r}
+# draw dotplot histogram with ggplot2
+library(ggplot2)
+ggplot(Dataset_5, aes(x = Dataset_5$`mean log2(fold)`)) +
+  geom_dotplot(aes(fill = bins), 
+               binwidth = 0.1, 
+               stackgroups = TRUE, 
+               position = "identity") 
+
+
+  theme_minimal()
 
 ```
 
