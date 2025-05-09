@@ -1,28 +1,84 @@
 box::use(
-  shiny[moduleServer, NS, div, h3, br, req],
+  shiny[moduleServer, NS, div, h3,h4, br, req, imageOutput, renderImage, img, tabsetPanel, tabPanel, p, column, fluidRow],
   highcharter[highchart, hc_add_series, hc_chart, hc_xAxis, hc_yAxis, hc_title,
               hc_tooltip, highchartOutput, renderHighchart, hc_plotOptions, JS],  # Added JS directly from highcharter
   dplyr[mutate, group_by, summarize, n],
-  readr[read_csv]
+  readr[read_csv],
+  here[here]
+    
 )
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
+  
   div(
     class = "Meta_analysis-container",
     style = "padding: 20px;",
     
-    h3("Gene Expression Dotplot", style = "color: #0062cc;"),
-    br(),
+    h3("Dataset V: Meta-analysis of CCCP-regulated nascent proteome", style = "color: #0062cc; margin-bottom: 20px;"),
     
-    highchartOutput(ns("gene_dotplot"), height = "600px")
+    tabsetPanel(
+      id = ns("meta_analysis_tabs"),
+      tabPanel(
+        title = "High Confidence CCCP Regulated Proteome",
+        value = "chart_tab",
+        div(
+          style = "padding: 15px 0;",
+          p("Interactive visualization of high-confidence CCCP-regulated genes identified through meta-analysis."),
+          p("Click on gene names to see detailed information including protein function and significance across datasets."),
+          highchartOutput(ns("gene_dotplot"), height = "600px")
+        )
+      ),
+      tabPanel(
+        title = "About the Meta-Analysis",
+        value = "about_tab",
+        div(
+          style = "padding: 15px 0;",
+          h3("How meta-analysis was performed", style = "color: #0062cc; margin-bottom: 25px;"),
+          
+          fluidRow(
+            # Left column - Image
+            column(
+              width = 5,
+              div(
+                style = "padding-right: 15px;",
+                img(
+                  src = "static/meta-analysis.jpg", 
+                  alt = "Meta-analysis methodology", 
+                  style = "width: 100%; border: 1px solid #ddd; border-radius: 5px;"
+                )
+              )
+            ),
+            
+            # Right column - Description
+            column(
+              width = 7,
+              div(
+                style = "padding-left: 15px;",
+                h4("Meta-analysis Methodology", style = "color: #0062cc; margin-top: 0;"),
+                p("DESCRIPTION", style = "line-height: 1.6;"),
+                h4("Significance Criteria", style = "color: #0062cc; margin-top: 20px;"),
+                p("Additional details about the meta-analysis methodology, significance criteria, and dataset integration can be added here.", 
+                  style = "line-height: 1.6;"),
+                h4("Dataset Integration", style = "color: #0062cc; margin-top: 20px;"),
+                p("Explain how multiple datasets were combined and analyzed to identify high-confidence CCCP-regulated genes.",
+                  style = "line-height: 1.6;")
+              )
+            )
+          )
+        )
+      )
+    )
   )
 }
-
+                
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    
+  
+    
     output$gene_dotplot <- renderHighchart({
       # Load data
       data <- read_csv("data/Dataset_5_cleaned.csv", show_col_types = FALSE)
@@ -39,15 +95,24 @@ server <- function(id) {
       # Create the basic highchart
       hc <- highchart() |>
         hc_chart(type = "scatter") |>
-        hc_title(text = "Gene Expression Dotplot") |>
+        hc_title(text = "Nascent proteins significantly regulated by CCCP in at least 3/4 datasets") |>
         hc_xAxis(
           title = list(text = "mean log2(fold)"),
           plotBands = list(list(
             from = -0.25,
             to = 0.25,
+            color = "white"
+          ),
+          list(
+            from = 0.25,
+            to = 1.8,
             color = "rgba(200, 200, 200, 0.2)"
-          ))
-        ) |>
+          ),
+          list(
+            from = -1.8,
+            to = -0.25,
+            color = "rgba(200, 200, 200, 0.2)"
+          ))) |>
         hc_yAxis(title = list(text = ""), max = 50) |>
         hc_tooltip(
           useHTML = TRUE,
