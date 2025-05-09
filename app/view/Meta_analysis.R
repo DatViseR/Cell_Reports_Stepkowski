@@ -1,7 +1,7 @@
 box::use(
   shiny[moduleServer, NS, div, h3, br, req],
   highcharter[highchart, hc_add_series, hc_chart, hc_xAxis, hc_yAxis, hc_title,
-              hc_tooltip, highchartOutput, renderHighchart, hc_plotOptions],
+              hc_tooltip, highchartOutput, renderHighchart, hc_plotOptions, JS],  # Added JS directly from highcharter
   dplyr[mutate, group_by, summarize, n],
   readr[read_csv]
 )
@@ -50,8 +50,42 @@ server <- function(id) {
         ) |>
         hc_yAxis(title = list(text = ""), max = 50) |>
         hc_tooltip(
+          useHTML = TRUE,
           headerFormat = "",
-          pointFormat = "<b>{point.gene}</b><br>Fold: {point.fold:.2f}<br>P-value: {point.pvalue:.2f}"
+          pointFormat = '<div style="width: 438px; max-width: 100%; padding: 10px; font-family: Arial, sans-serif;">
+                           <h3 style="margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #ddd; color: #0062cc;">
+                             <span style="color: {point.colorValue};">{point.gene}</span>
+                           </h3>
+                           <table style="width: 100%; border-collapse: collapse;">
+                             <tr>
+                               <td style="padding: 3px; font-weight: bold;">Fold Change:</td>
+                               <td style="padding: 3px;">{point.fold:.2f}</td>
+                             </tr>
+                             <tr>
+                               <td style="padding: 3px; font-weight: bold;">P-value:</td>
+                               <td style="padding: 3px;">{point.pvalue:.2f}</td>
+                             </tr>
+                             <tr>
+                               <td style="padding: 3px; font-weight: bold;">Significant in:</td>
+                               <td style="padding: 3px;">{point.significant}/4 datasets</td>
+                             </tr>
+                           </table>
+                           <div style="margin-top: 8px; width: 418px;">
+                             <div style="font-weight: bold; margin-bottom: 3px;">Protein:</div>
+                             <div style="padding-left: 5px; font-size: 12px; white-space: normal; word-break: break-word; overflow-wrap: break-word;">{point.protein_names}</div>
+                           </div>
+                           <div style="margin-top: 8px; width: 418px;">
+                             <div style="font-weight: bold; margin-bottom: 3px;">Function:</div>
+                             <div style="padding-left: 5px; font-size: 12px; white-space: normal; word-break: break-word; overflow-wrap: break-word;">{point.function_cc}</div>
+                           </div>
+                         </div>',
+          backgroundColor = "rgba(255, 255, 255, 0.98)",
+          borderWidth = 1,
+          borderColor = "#AAA",
+          borderRadius = 8,
+          shadow = TRUE,
+          outside = TRUE,
+          followPointer = FALSE
         ) |>
         hc_plotOptions(
           scatter = list(
@@ -88,7 +122,11 @@ server <- function(id) {
               y = binned_data$stack_position[i],
               gene = binned_data$Gene_single[i],
               fold = binned_data$`mean log2(fold)`[i],
-              pvalue = binned_data$`mean -log10  p value`[i]
+              pvalue = binned_data$`mean -log10  p value`[i],
+              significant = binned_data$`significant in n/4 datasets`[i],
+              function_cc = binned_data$`Function [CC]`[i],
+              protein_names = binned_data$`Protein names`[i],
+              colorValue = text_color
             )),
             type = "scatter",
             name = binned_data$Gene_single[i],
