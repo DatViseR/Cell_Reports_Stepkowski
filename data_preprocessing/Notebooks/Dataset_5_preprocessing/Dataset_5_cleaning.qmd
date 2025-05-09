@@ -4,9 +4,9 @@ format: html
 ---
 
 ```{r}
-use("readr", c("read_csv", "locale", "cols", "col_integer"))
+use("readr", c("read_csv", "locale", "cols", "col_integer", "read_delim", "col_skip"))
 use("here", "here")
-use("dplyr", c("select", "glimpse", "mutate"))
+library(dplyr)
 Dataset_5 <- read_csv(here("data_preprocessing/Notebooks/Dataset_5_preprocessing/Dataset_5.csv"), 
     col_types = cols(`significant in n/4 datasets` = col_integer()), 
     locale = locale(decimal_mark = ",")) |> 
@@ -46,7 +46,68 @@ ggplot(Dataset_5, aes(x = Dataset_5$`mean log2(fold)`)) +
 ```
 
 
+```{r}
+# Upload the data that was matched from Uniprot for the subset of genes in Dataset 5
 
+Uniprot_info <- read_delim(here("data_preprocessing/Notebooks/Dataset_5_preprocessing/Uniprot_info.tsv"), 
+    delim = "\t", escape_double = FALSE, 
+    col_types = cols(From = col_skip()), 
+    trim_ws = TRUE)
+glimpse(Uniprot_info)
+
+# remove empty observations
+
+Uniprot_info <- Uniprot_info |> 
+  filter(!is.na(`Function [CC]`))
+
+
+glimpse(Uniprot_info)
+
+# remove duplicated Gene Names - leave the observations were Function is not NA
+Uniprot_info <- Uniprot_info |> 
+  group_by(`Gene Names`) |> 
+  filter(row_number() == 1) |> 
+  ungroup()
+
+glimpse(Uniprot_info)
+
+# leave only the first gene name in Gene Names - erase everything after space and save in new column Gene_single
+Uniprot_info <- Uniprot_info |> 
+  mutate(Gene_single = sub(" .*", "", `Gene Names`)) 
+
+# leave only the data so that Gene_single is unique
+Uniprot_info <- Uniprot_info |> 
+  select(Gene_single, `Function [CC]`, `Gene Names`, `Protein names`) |> 
+  distinct(Gene_single, .keep_all = TRUE)|>
+  select(-`Gene Names`)
+ 
+```
+
+```{r}
+#merge the Uniprot info with Dataset_5
+
+Dataset_5 <- Dataset_5 |> 
+  left_join(Uniprot_info, by = c("Gene_single") )
+
+
+
+```
+
+
+
+
+```{r}
+# # Sace unique gene names as one column txt
+# write.table(unique(Dataset_5$`Gene_single`), 
+#             here("data", "Dataset_5_genes.txt"), 
+#             sep = "\t", 
+#             row.names = FALSE, 
+#             col.names = FALSE, 
+#             quote = FALSE)
+
+
+
+```
 
 
 
