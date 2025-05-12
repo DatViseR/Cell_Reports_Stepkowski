@@ -1,5 +1,5 @@
 box::use(
-  shiny[moduleServer, NS, div, h3,h4, br, req, imageOutput, renderImage, img, tabsetPanel, tabPanel, p, column, fluidRow],
+  shiny[moduleServer, NS, div, h3,h4,h5, br, req, imageOutput, renderImage, img, tabsetPanel, tabPanel, p, column, fluidRow, tags],
   highcharter[highchart, hc_add_series, hc_chart, hc_xAxis, hc_yAxis, hc_title,
               hc_tooltip, highchartOutput, renderHighchart, hc_plotOptions, JS],  # Added JS directly from highcharter
   dplyr[mutate, group_by, summarize, n],
@@ -25,17 +25,15 @@ ui <- function(id) {
         value = "chart_tab",
         div(
           style = "padding: 15px 0;",
-          p("Interactive visualization of high-confidence CCCP-regulated genes identified through meta-analysis."),
-          p("Click on gene names to see detailed information including protein function and significance across datasets."),
+          p("This is the interactive visualisation of the high confidence CCCP regulated nascent proteoem. It shows distribution of mean log2 fold changes CCCP vs. DMSO for proteins regulated by CCCP across multiple datasets.
+          Click on the protein symbol to see detailed information including protein function and mean expression changes and assosiated p-values"),
           highchartOutput(ns("gene_dotplot"), height = "600px")
         )
       ),
       tabPanel(
         title = "About the Meta-Analysis",
         value = "about_tab",
-        div(
-          style = "padding: 15px 0;",
-          h3("How meta-analysis was performed", style = "color: #0062cc; margin-bottom: 25px;"),
+       
           
           fluidRow(
             # Left column - Image
@@ -44,11 +42,13 @@ ui <- function(id) {
               div(
                 style = "padding-right: 15px;",
                 img(
-                  src = "static/meta-analysis.jpg", 
+                  src = "static/meta-analysis.png", 
                   alt = "Meta-analysis methodology", 
                   style = "width: 100%; border: 1px solid #ddd; border-radius: 5px;"
-                )
-              )
+                ),
+                # add figure caption
+                 h5("Figure 1: Meta-analysis methodology", style = "text-align: center; color: #666;")
+                  )
             ),
             
             # Right column - Description
@@ -56,18 +56,24 @@ ui <- function(id) {
               width = 7,
               div(
                 style = "padding-left: 15px;",
-                h4("Meta-analysis Methodology", style = "color: #0062cc; margin-top: 0;"),
-                p("DESCRIPTION", style = "line-height: 1.6;"),
-                h4("Significance Criteria", style = "color: #0062cc; margin-top: 20px;"),
-                p("Additional details about the meta-analysis methodology, significance criteria, and dataset integration can be added here.", 
-                  style = "line-height: 1.6;"),
-                h4("Dataset Integration", style = "color: #0062cc; margin-top: 20px;"),
-                p("Explain how multiple datasets were combined and analyzed to identify high-confidence CCCP-regulated genes.",
-                  style = "line-height: 1.6;")
+                h4("Meta-analysis inclusion criteria", style = "color: #0062cc; margin-top: 0;"),
+                tags$ul(
+                  style = "list-style-type: disc; padding-left: 20px;",
+                  tags$li("The significantly regulated proteins were extracted from each dataset"),
+                  tags$li("Hits were filtered for linear absolute fold expresssion difference > 20%"),
+                  tags$li("Only hits significantly regulated in at least 3/4 datasets were included"),
+                ),
+                h4("Top 25 hits in the meta-analysis", style = "color: #0062cc; margin-top: 20px;"),
+                img(
+                  src = "static/meta-analysis_tab.png", 
+                  alt = "Meta-analysis tab", 
+                  style = "width: 41%; border: 1px solid #ddd; border-radius: 5px;"
+                )
+             
               )
             )
           )
-        )
+        
       )
     )
   )

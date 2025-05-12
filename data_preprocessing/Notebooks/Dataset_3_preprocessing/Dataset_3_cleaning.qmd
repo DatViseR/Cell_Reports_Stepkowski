@@ -3,3 +3,71 @@ title: "Dataset_3_cleaning"
 format: html
 ---
 
+```{r}
+use("readr", c("read_csv", "locale", "cols", "col_skip"))
+use("here", "here")
+use("dplyr", c("filter", "select", "mutate", "glimpse", "rename", "case_when"))
+use("tidyr", c("pivot_longer"))
+
+
+
+```
+
+```{r}
+Dataset_3 <- read_csv(here("data_preprocessing/Notebooks/Dataset_3_preprocessing/Dataset_3.csv"), 
+    col_types = cols(SC_Veh_1 = col_skip(), 
+        SC_Veh_2 = col_skip(), SC_Veh_3 = col_skip(), 
+        SC_CCCP_1 = col_skip(), SC_CCCP_2 = col_skip(), 
+        SC_CCCP_3 = col_skip(), A1_Veh_1 = col_skip(), 
+        A1_Veh_2 = col_skip(), A1_Veh_3 = col_skip(), 
+        A1_CCCP_1 = col_skip(), A1_CCCP_2 = col_skip(), 
+        A1_CCCP_3 = col_skip(), `T-test Significant A1_Veh_SC_Veh` = col_skip(), 
+        `T-test Significant A1_CCCP_SC_CCCP` = col_skip(), 
+        `T-test Significant SC_CCCP_SC_Veh` = col_skip(), 
+        `T-test Significant A1_CCCP_A1_Veh` = col_skip(), 
+        PEP = col_skip(), Score = col_skip(), 
+        `MS/MS Count` = col_skip(), Sequence = col_skip(), 
+        Proteins = col_skip()))
+glimpse(Dataset_3)
+```
+
+```{r}
+# Create long format data with column names: Gene_names, Uniprot, Protein_name, log2_fold, pval, qval
+
+
+Dataset_3_long <- Dataset_3 |>
+  pivot_longer(
+    cols = starts_with("Log2FC") | starts_with("-Log10") | starts_with("T-test q-value"),
+    names_to = c(".value", "comparison"),
+    names_pattern = "(Log2FC|\\-Log10 T-test p-value|T-test q-value) (.*)"
+  ) |>
+  dplyr::rename(
+    "log2_fold" = "Log2FC",
+    "p_value" = "-Log10 T-test p-value",
+    "q_value" = "T-test q-value"
+  ) |>
+  dplyr::mutate(
+  # Map the comparison codes to descriptive labels
+    comparison = case_when(
+      comparison == "A1_Veh_SC_Veh" ~ "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)",
+      comparison == "A1_CCCP_SC_CCCP" ~ "siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)",
+      comparison == "SC_CCCP_SC_Veh" ~ "siRNA scramble(CCCP) vs. siRNA scramble (DMSO)",
+      comparison == "A1_CCCP_A1_Veh" ~ "siRNA EEF1A1(CCCP) vs. siRNA EEF1A1(DMSO)",
+      TRUE ~ comparison
+    )
+  ) |>
+ dplyr::select(`Gene names`, `Leading razor protein`, `Protein names`, comparison, log2_fold, p_value, q_value)
+
+# Display the first few rows of the transformed data
+head(Dataset_3_long)
+
+```
+
+
+```{r}
+# Save the cleaned long format data for use in the application
+arrow::write_parquet(Dataset_3_long, here("data", "Dataset_3.parquet"))
+
+
+```
+

@@ -206,17 +206,19 @@ followed by 1h labeling with 2mM AHA together with 20nM Bortezomib or 8uM CCCP o
       
       # Dataset III
       create_dataset_panel(
-        dataset_title = "Dataset III: EEF1A1 Silencing Impact on Translation Dynamics",
+        dataset_title = "Dataset III:Nascent proteome alterations after EEF1A1 silencing +- CCCP treatment",
         method = tags$ul(
           tags$li("siRNA silencing"),
           tags$li("BONCAT proteomics"),
-          tags$li("30 min AHA pulse labeling")
+          tags$li("1h AHA pulse labeling"),
+          tags$li("TMT multiplexed proteomics")
         ),
-        experimental_design = "Examination of translation dynamics after EEF1A1 silencing",
-        samples = "n = 4 (Control siRNA, EEF1A1 siRNA replicates)",
-        details = "Investigation of how EEF1A1 silencing affects the nascent proteome composition, revealing its role in the stress response pathway.",
-        details_extra = "The dataset provides insights into translational regulation mechanisms during mitochondrial stress.",
-        figures = "Figures 4A-D, S3A-B in the manuscript"
+        experimental_design = "HEK293T were treated with siRNA scramble/siRNA EEF1A1 for 68h 
+nascent proteome was labeled for 1h with 2mM AHA together with 8uM CCCP or  0.1% DMSO",
+        samples = "n = 3",
+        details = "Intrigued by our current and previous results showing a decrease in the EEF1A1 in conditions associated with mitochondrial stress, we silenced its expression and analyzed translation and alterations in the nascent proteome in control and mitochondrial stress conditions (dataset III). We expected the EEF1A1 knockdown would lead to a pronounced attenuation of translation. Indeed, we observed that EEF1A1 knockdown caused an approximately 50% decrease in translation. This decrease was not associated with temporal profile alterations in recovery from CCCP-mediated inhibition of translation",
+        details_extra = "Silencing of EEF1A1 altered the nascent proteome in a pattern strikingly similar to that observed during acute mitochondrial stress",
+        figures = "Figure 6 in the manuscript"
       ),
       
       # Dataset IV
