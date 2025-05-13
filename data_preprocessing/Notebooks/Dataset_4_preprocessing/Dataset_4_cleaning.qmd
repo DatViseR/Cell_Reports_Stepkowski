@@ -1,0 +1,76 @@
+---
+title: "Dataset_4_cleaning"
+format: html
+---
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(arrow)
+library(here)
+
+```
+
+
+```{r}
+
+
+
+Dataset_4 <- read_csv(here("data_preprocessing/Notebooks/Dataset_4_preprocessing/Dataset_4.csv"), 
+    locale = locale(decimal_mark = ",") )
+
+glimpse(Dataset_4)
+
+Dataset_4 <- Dataset_4[ , c(20:25, 28:30)]
+glimpse(Dataset_4)
+```
+
+
+```{r}
+
+# Create long format data
+Dataset_4_long <- Dataset_4 |>
+  pivot_longer(
+    cols = starts_with("Student's T-test Difference") | 
+          starts_with("-Log Student's T-test p-value") | 
+          starts_with("Student's T-test q-value"),
+    names_to = c(".value", "comparison"),
+    names_pattern = "(Student's T-test Difference|\\-Log Student's T-test p-value|Student's T-test q-value) (.*)"
+  ) |>
+  rename(
+    "log2(fold) CCCP vs. DMSO" = "Student's T-test Difference",
+    "p_value" = "-Log Student's T-test p-value",
+    "q_value" = "Student's T-test q-value"
+  ) |>
+  mutate(
+  
+    # Map the comparison codes to descriptive labels
+    comparison = case_when(
+      comparison == "0-30min_Ctrl" ~ "0-30` (CCCP vs. DMSO)",
+      comparison == "30-60min_Ctrl" ~ "30-60` CCCP vs. DMSO)",
+      TRUE ~ comparison
+    )
+  ) |>
+  select(`Gene names`, `Leading razor protein`, `Protein names`, 
+         comparison, `log2(fold) CCCP vs. DMSO`, p_value, q_value) |>
+  # Optional: reorder factor levels if needed
+  mutate(comparison = factor(comparison, 
+                            levels = c("0-30` (CCCP vs. DMSO)", 
+                                      "30-60` CCCP vs. DMSO)")))
+
+# Display the first few rows of the transformed data
+head(Dataset_4_long)
+
+
+
+```
+
+
+```{r}
+# Save the cleaned long format data for use in the application
+arrow::write_parquet(Dataset_4_long, here("data", "Dataset_4.parquet"))
+
+
+```
+

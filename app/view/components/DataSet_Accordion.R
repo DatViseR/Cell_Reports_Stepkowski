@@ -223,17 +223,22 @@ nascent proteome was labeled for 1h with 2mM AHA together with 8uM CCCP or  0.1%
       
       # Dataset IV
       create_dataset_panel(
-        dataset_title = "Dataset IV: HCMV Infection and Mitochondrial Stress Proteomics",
+        dataset_title = "Dataset IV: THRONCAT - nascent proteome changes during first and second 30 min of CCCP treatment",
         method = tags$ul(
-          tags$li("Viral infection model"),
-          tags$li("BONCAT proteomics"),
-          tags$li("30 min AHA pulse labeling")
+          tags$li("THRONCAT (labeling in the presence of methionine"),
+          tags$li("Labeling in native growth media"),
+          tags$li("30 min betaES pulse labeling"),
+          tags$li("TMT multiplexed proteomics")
         ),
-        experimental_design = "Analysis of HCMV infection impact on nascent proteome under mitochondrial stress",
-        samples = "n = 6 (Control, HCMV infected, with/without CCCP treatment)",
-        details = "This dataset explores how viral infection (HCMV) interacts with mitochondrial stress response pathways to affect protein synthesis.",
-        details_extra = "The comparative analysis provides insights into pathogen-induced stress responses.",
-        figures = "Figures 5A-C, S4A-D in the manuscript"
+        experimental_design = "1mM concentration of betaES threonine analog was used to label
+nascent proteins in the first and second 30 min of CCCP treatment in HEK293T cells",
+        samples = "n = 4",
+        details = "Unavoidable limitation of BONCAT is the use of serum starvation during AHA labeling periods, 
+        which may impact stress signaling and regulation of the nascent proteome. To address this, 
+        we synthesized β-ethynylserine (βES) and applied the validation by the THRONCAT (dataset IV),
+        which was reported to enable labeling of the nascent proteome in the full medium",
+        details_extra = "Nevertheless, due to the short time window, highly attenuated translation, and the presence of endogenous threonine in the medium, this validation is limited by the small number of peptides detected",
+        figures = "Only supplementary data available"
       ),
       
       # Dataset V
