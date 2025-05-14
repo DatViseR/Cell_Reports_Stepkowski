@@ -31,7 +31,12 @@ ui <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             width = 500, # Increased width from 300 to 400
-            h5("show/hide desciption and controls"),
+          
+            title = p("You can to hide/show the description and filters by using the arrow on the right", 
+                             style = "color: #6c757d; font-style: italic; font-size: 0.6rem; margin: 0; white-space: nowrap;
+                              transform: translateY(-10px);"),
+                      
+                     
             
             # Use the updated dataset description component
             create_description("I"),

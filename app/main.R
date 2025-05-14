@@ -1,6 +1,9 @@
 box::use(
   shiny[bootstrapPage, div, moduleServer, NS, renderUI, tags, uiOutput, p, tagList],
   bslib[page_navbar, navbar_options, nav_panel, nav_spacer, nav_menu, nav_item],
+  here[here],
+  data.table[fread],
+  dplyr[glimpse],
   highcharter,  
   app/view/About_module,
   app/view/Data_browser,
@@ -60,6 +63,46 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    # Upload the GO data once globally as it will not be changed
+    # and will be used in multiple modules
+    
+    GO <- arrow::read_parquet(here("data/GO.parquet"))
+    # console log the uploaded data
+    cat("GO data uploaded successfully\n")
+    cat("GO data structure","\n")
+    glimpse(GO)
+  
+    # upload datasets
+    dataset_1 <- arrow::read_parquet(here("data/Dataset_1_long.parquet"))
+    cat("Dataset_1_cleaned uploaded successfully\n")
+    cat("Dataset_1_structure","\n")
+    glimpse(dataset_1)
+    cat("\n")
+    
+    dataset_2 <- arrow::read_parquet(here("data/Dataset_2.parquet"))
+    cat("Dataset_2_uploaded successfully\n")
+    cat("Dataset_2_structure","\n")
+    glimpse(dataset_2)
+    cat("\n")
+    
+    dataset_3 <- arrow::read_parquet(here("data/Dataset_3.parquet"))
+    cat("Dataset_3_uploaded successfully\n")
+    cat("Dataset_3_structure","\n")
+    glimpse(dataset_3)
+    cat("\n")
+    
+    dataset_4 <- arrow::read_parquet(here("data/Dataset_4.parquet"))
+    cat("Dataset_4_uploaded successfully\n")
+    cat("Dataset_4_structure","\n")
+    glimpse(dataset_4)
+    cat("\n")
+    
+    dataset_5 <- data.table::fread(here("data/Dataset_5_cleaned.csv"))
+    cat("Dataset_5_uploaded successfully\n")
+    cat("Dataset_5_structure","\n")
+    glimpse(dataset_5)
+    cat("\n")
+    
     # Initialize all module servers
     About_module$server("about")
     Data_browser$server("dataset_browser")
