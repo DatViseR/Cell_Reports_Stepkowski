@@ -2,9 +2,11 @@
 
 box::use(
   shiny[div, h3, h4, p, br, moduleServer, NS, tabsetPanel, tabPanel, fluidRow, column, 
-        verbatimTextOutput, uiOutput, renderUI, observeEvent, reactive, req],
+        verbatimTextOutput, uiOutput, renderUI, observeEvent, reactive, req, h5],
   bslib[card, card_header, card_body, layout_sidebar, sidebar],
-  DT[datatable, renderDT, DTOutput]
+  DT[datatable, renderDT, DTOutput],
+  # Import our dataset description module
+  app/view/components/Dataset_Description[create_description]
 )
 
 #' @export
@@ -28,21 +30,17 @@ ui <- function(id) {
         br(),
         layout_sidebar(
           sidebar = sidebar(
-            width = 300,
-            title = "Dataset I Description",
+            width = 500, # Increased width from 300 to 400
+            h5("show/hide desciption and controls"),
             
-            # Placeholder for Dataset Description Module
+            # Use the updated dataset description component
+            create_description("I"),
+            
+            # Placeholder for filters
             div(
-              id = ns("dataset_I_description"),
-              h4("About Dataset I"),
-              p("This dataset contains information about..."),
-              p("Number of samples: XXX"),
-              p("Variables: XXX"),
-              p("Methodology: XXX"),
-              
-              # Placeholder for filters or additional controls
-              h4("Data Filters"),
-              p("Filters will be implemented here")
+              style = "margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;",
+              h4("Data Filters", style = "font-size: 0.95rem; color: #333;"),
+              p("Filters will be implemented here", style = "font-size: 0.85rem;")
             )
           ),
           
@@ -64,21 +62,17 @@ ui <- function(id) {
         br(),
         layout_sidebar(
           sidebar = sidebar(
-            width = 300,
+            width = 500, # Increased width
             title = "Dataset II Description",
             
-            # Placeholder for Dataset Description Module
+            # Use the updated dataset description component
+            create_description("II"),
+            
+            # Placeholder for filters
             div(
-              id = ns("dataset_II_description"),
-              h4("About Dataset II"),
-              p("This dataset contains information about..."),
-              p("Number of samples: XXX"),
-              p("Variables: XXX"),
-              p("Methodology: XXX"),
-              
-              # Placeholder for filters or additional controls
-              h4("Data Filters"),
-              p("Filters will be implemented here")
+              style = "margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;",
+              h4("Data Filters", style = "font-size: 0.95rem; color: #333;"),
+              p("Filters will be implemented here", style = "font-size: 0.85rem;")
             )
           ),
           
@@ -100,21 +94,17 @@ ui <- function(id) {
         br(),
         layout_sidebar(
           sidebar = sidebar(
-            width = 300,
+            width = 500, # Increased width
             title = "Dataset III Description",
             
-            # Placeholder for Dataset Description Module
+            # Use the updated dataset description component
+            create_description("III"),
+            
+            # Placeholder for filters
             div(
-              id = ns("dataset_III_description"),
-              h4("About Dataset III"),
-              p("This dataset contains information about..."),
-              p("Number of samples: XXX"),
-              p("Variables: XXX"),
-              p("Methodology: XXX"),
-              
-              # Placeholder for filters or additional controls
-              h4("Data Filters"),
-              p("Filters will be implemented here")
+              style = "margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;",
+              h4("Data Filters", style = "font-size: 0.95rem; color: #333;"),
+              p("Filters will be implemented here", style = "font-size: 0.85rem;")
             )
           ),
           
@@ -136,21 +126,17 @@ ui <- function(id) {
         br(),
         layout_sidebar(
           sidebar = sidebar(
-            width = 300,
+            width = 500, # Increased width
             title = "Dataset IV Description",
             
-            # Placeholder for Dataset Description Module
+            # Use the updated dataset description component
+            create_description("IV"),
+            
+            # Placeholder for filters
             div(
-              id = ns("dataset_IV_description"),
-              h4("About Dataset IV"),
-              p("This dataset contains information about..."),
-              p("Number of samples: XXX"),
-              p("Variables: XXX"),
-              p("Methodology: XXX"),
-              
-              # Placeholder for filters or additional controls
-              h4("Data Filters"),
-              p("Filters will be implemented here")
+              style = "margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;",
+              h4("Data Filters", style = "font-size: 0.95rem; color: #333;"),
+              p("Filters will be implemented here", style = "font-size: 0.85rem;")
             )
           ),
           
@@ -172,21 +158,17 @@ ui <- function(id) {
         br(),
         layout_sidebar(
           sidebar = sidebar(
-            width = 300,
+            width = 500, # Increased width
             title = "Dataset V Description",
             
-            # Placeholder for Dataset Description Module
+            # Use the updated dataset description component
+            create_description("V"),
+            
+            # Placeholder for filters
             div(
-              id = ns("dataset_V_description"),
-              h4("About Dataset V"),
-              p("This dataset contains information about..."),
-              p("Number of samples: XXX"),
-              p("Variables: XXX"),
-              p("Methodology: XXX"),
-              
-              # Placeholder for filters or additional controls
-              h4("Data Filters"),
-              p("Filters will be implemented here")
+              style = "margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;",
+              h4("Data Filters", style = "font-size: 0.95rem; color: #333;"),
+              p("Filters will be implemented here", style = "font-size: 0.85rem;")
             )
           ),
           
@@ -204,6 +186,8 @@ ui <- function(id) {
     )
   )
 }
+
+
 
 #' @export
 server <- function(id) {
