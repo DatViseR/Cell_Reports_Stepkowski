@@ -103,10 +103,24 @@ server <- function(id) {
     glimpse(dataset_5)
     cat("\n")
     
+    
     # Initialize all module servers
     About_module$server("about")
-    Data_browser$server("dataset_browser")
-    Temporal_alterations$server("temporal_alterations")
+  
+    
+    # Pass datasets to child module
+    Data_browser$server("dataset_browser", 
+                        datasets = list(
+                          I = dataset_1,
+                          II = dataset_2,
+                          III = dataset_3,
+                          IV = dataset_4, 
+                          V = dataset_5
+                        ))
+    
+  Temporal_alterations$server("temporal_alterations",  dataset = dataset_1)
+      
+   
     CCCP_vs_Bortezomib$server("CCCP_vs_Bortezomib")
     Silencing_EEF1A1$server("Silencing_EEF1A1")
     THRONCAT$server("THRONCAT")

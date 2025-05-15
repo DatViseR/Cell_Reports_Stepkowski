@@ -7,7 +7,11 @@ box::use(
   DT[datatable, renderDT, DTOutput],
   # Import our dataset description module
   app/view/components/Dataset_Description[create_description],
-  app/view/components/Constants[ui_info_for_tabPanel]
+  app/view/components/Constants[ui_info_for_tabPanel],
+  here[here],
+
+  app/view/components/DT_table_in_data_browser
+  
 )
 
 #' @export
@@ -58,7 +62,7 @@ ui <- function(id) {
               h3("Dataset I Data", style = "margin: 0;")
             ),
             card_body(
-              DTOutput(ns("table_I"))
+              DT_table_in_data_browser$ui(ns("Dataset_1_table"))
             )
           )
         )
@@ -232,81 +236,14 @@ server <- function(id) {
     })
     
     # Render tables
-    output$table_I <- renderDT({
-      datatable(
-        datasets()$I,
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel')
-        ),
-        extensions = 'Buttons',
-        rownames = FALSE,
-        caption = "Dataset I - Interactive Table"
-      )
-    })
-    
-    output$table_II <- renderDT({
-      datatable(
-        datasets()$II,
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel')
-        ),
-        extensions = 'Buttons',
-        rownames = FALSE,
-        caption = "Dataset II - Interactive Table"
-      )
-    })
-    
-    output$table_III <- renderDT({
-      datatable(
-        datasets()$III,
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel')
-        ),
-        extensions = 'Buttons',
-        rownames = FALSE,
-        caption = "Dataset III - Interactive Table"
-      )
-    })
-    
-    output$table_IV <- renderDT({
-      datatable(
-        datasets()$IV,
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel')
-        ),
-        extensions = 'Buttons',
-        rownames = FALSE,
-        caption = "Dataset IV - Interactive Table"
-      )
-    })
-    
-    output$table_V <- renderDT({
-      datatable(
-        datasets()$V,
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel')
-        ),
-        extensions = 'Buttons',
-        rownames = FALSE,
-        caption = "Dataset V - Interactive Table"
-      )
-    })
-    
+   DT_table_in_data_browser$server("Dataset_1_table", dataset = datasets$I  , table_caption = "Dataset I (Sidebar Table)")
+   # DT_table_in_data_browser$server("table_I", dataset = datasets$I, table_caption = "Dataset I - Interactive Table")
+   # DT_table_in_data_browser$server("table_II", dataset = datasets$II, table_caption = "Dataset II - Interactive Table")
+   # DT_table_in_data_browser$server("table_III", dataset = datasets$III, table_caption = "Dataset III - Interactive Table")
+   # DT_table_in_data_browser$server("table_IV", dataset = datasets$IV, table_caption = "Dataset IV - Interactive Table")
+   # DT_table_in_data_browser$server("table_V", dataset = datasets$V, table_caption = "Dataset V - Interactive Table")
+   # 
+   #  
     # Tab switching logic
     observeEvent(input$dataset_tabs, {
       # You can add specific actions when tabs are switched
