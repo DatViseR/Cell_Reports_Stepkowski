@@ -56,7 +56,9 @@ Dataset_3_long <- Dataset_3 |>
       TRUE ~ comparison
     )
   ) |>
- dplyr::select(`Gene names`, `Leading razor protein`, `Protein names`, comparison, log2_fold, p_value, q_value)
+ dplyr::select(`Gene names`, `Leading razor protein`, `Protein names`, comparison, log2_fold, p_value, q_value) |>
+  
+  mutate(Gene_single =  gsub(";.*", "", `Gene names`))
 
 # Display the first few rows of the transformed data
 head(Dataset_3_long)

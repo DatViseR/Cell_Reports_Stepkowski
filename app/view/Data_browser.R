@@ -6,12 +6,14 @@ box::use(
   bslib[card, card_header, card_body, layout_sidebar, sidebar],
   DT[datatable, renderDT, DTOutput],
   # Import our dataset description module
-  app/view/components/Dataset_Description[create_description]
+  app/view/components/Dataset_Description[create_description],
+  app/view/components/Constants[ui_info_for_tabPanel]
 )
 
 #' @export
 ui <- function(id) {
   ns <- NS(id)
+  
   
   div(
     class = "data-browser-container",
@@ -23,7 +25,9 @@ ui <- function(id) {
     
     tabsetPanel(
       id = ns("dataset_tabs"),
-      
+    # info instead of tabPanel titles  
+    
+    
       # Dataset I
       tabPanel(
         "Dataset I",
@@ -32,10 +36,9 @@ ui <- function(id) {
           sidebar = sidebar(
             width = 500, # Increased width from 300 to 400
           
-            title = p("You can to hide/show the description and filters by using the arrow on the right", 
-                             style = "color: #6c757d; font-style: italic; font-size: 0.6rem; margin: 0; white-space: nowrap;
-                              transform: translateY(-10px);"),
-                      
+            # defined in constants
+            title = ui_info_for_tabPanel(),
+                 
                      
             
             # Use the updated dataset description component
@@ -68,7 +71,7 @@ ui <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             width = 500, # Increased width
-            title = "Dataset II Description",
+            title = ui_info_for_tabPanel(),
             
             # Use the updated dataset description component
             create_description("II"),
@@ -100,7 +103,7 @@ ui <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             width = 500, # Increased width
-            title = "Dataset III Description",
+            title = ui_info_for_tabPanel(),
             
             # Use the updated dataset description component
             create_description("III"),
@@ -132,7 +135,7 @@ ui <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             width = 500, # Increased width
-            title = "Dataset IV Description",
+            title = ui_info_for_tabPanel(),
             
             # Use the updated dataset description component
             create_description("IV"),
@@ -164,7 +167,7 @@ ui <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             width = 500, # Increased width
-            title = "Dataset V Description",
+            title = ui_info_for_tabPanel(),
             
             # Use the updated dataset description component
             create_description("V"),

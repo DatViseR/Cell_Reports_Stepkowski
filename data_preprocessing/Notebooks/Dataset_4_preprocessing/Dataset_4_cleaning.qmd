@@ -57,7 +57,11 @@ Dataset_4_long <- Dataset_4 |>
   # Optional: reorder factor levels if needed
   mutate(comparison = factor(comparison, 
                             levels = c("0-30` (CCCP vs. DMSO)", 
-                                      "30-60` CCCP vs. DMSO)")))
+                                      "30-60` CCCP vs. DMSO)"))) |>
+  
+  mutate(Gene_single =  gsub(";.*", "", `Gene names`))
+
+
 
 # Display the first few rows of the transformed data
 head(Dataset_4_long)

@@ -66,6 +66,17 @@ Dataset_1_long <- Dataset_1_cleaned %>% tidyr::pivot_longer(
     names_to = c("Time_point", ".value"),
     names_pattern = "(STRESS_I|STRESS_II|RECOVERY_I|RECOVERY_II)_(pval|FC|qval)"
   ) 
+
+Dataset_1_long <- Dataset_1_long |>
+  mutate(
+  # remove additional genes after semicolon
+   Gene_single = gsub(";.*", "", Gene_names)
+    )|>
+  rename(p_value = pval,
+         "log2(Fold)" = FC,
+         q_value = qval) 
+ 
+
 ```
 
 ### Save the cleaned long format data for use in the application

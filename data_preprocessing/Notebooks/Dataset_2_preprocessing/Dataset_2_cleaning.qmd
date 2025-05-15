@@ -36,6 +36,17 @@ glimpse(Dataset_2_cleaned)
 ```
 
 
+
+```{r}
+Dataset_2_cleaned <- Dataset_2_cleaned|>
+ mutate(Gene_single = gsub(";.*", "", Gene_names))
+
+
+```
+
+
+
+
 ```{r}
 
 # Save the cleaned long format data for use in the application
