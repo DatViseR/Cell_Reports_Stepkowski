@@ -13,6 +13,7 @@ box::use(
   app/view/THRONCAT,
   app/view/Meta_analysis,
   app/view/AI
+
 )
 
 #' @export
@@ -103,6 +104,14 @@ server <- function(id) {
     glimpse(dataset_5)
     cat("\n")
     
+    datasets = list(
+      I = dataset_1,
+      II = dataset_2,
+      III = dataset_3,
+      IV = dataset_4, 
+      V = dataset_5)
+    cat("Datasets wrapped into list")
+    
     
     # Initialize all module servers
     About_module$server("about")
@@ -110,15 +119,9 @@ server <- function(id) {
     
     # Pass datasets to child module
     Data_browser$server("dataset_browser", 
-                        datasets = list(
-                          I = dataset_1,
-                          II = dataset_2,
-                          III = dataset_3,
-                          IV = dataset_4, 
-                          V = dataset_5
-                        ))
+                        datasets = datasets)
     
-  Temporal_alterations$server("temporal_alterations",  dataset = dataset_1)
+  Temporal_alterations$server("temporal_alterations")
       
    
     CCCP_vs_Bortezomib$server("CCCP_vs_Bortezomib")

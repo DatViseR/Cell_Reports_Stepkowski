@@ -21,7 +21,7 @@
 #' 
 #' @export
 box::use(
-  shiny[moduleServer, NS, renderUI, uiOutput, tags, tagList],
+  shiny[moduleServer, NS, renderUI, uiOutput, tags, tagList, req],
   DT[datatable, renderDT, DTOutput]
 )
 

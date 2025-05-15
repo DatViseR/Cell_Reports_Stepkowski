@@ -94,7 +94,7 @@ ui <- function(id) {
               h3("Dataset II Data", style = "margin: 0;")
             ),
             card_body(
-              DTOutput(ns("table_II"))
+              DT_table_in_data_browser$ui(ns("table_II"))
             )
           )
         )
@@ -126,7 +126,7 @@ ui <- function(id) {
               h3("Dataset III Data", style = "margin: 0;")
             ),
             card_body(
-              DTOutput(ns("table_III"))
+              DT_table_in_data_browser$ui(ns("table_III"))
             )
           )
         )
@@ -158,7 +158,7 @@ ui <- function(id) {
               h3("Dataset IV Data", style = "margin: 0;")
             ),
             card_body(
-              DTOutput(ns("table_IV"))
+              DT_table_in_data_browser$ui(ns("table_IV"))
             )
           )
         )
@@ -190,7 +190,7 @@ ui <- function(id) {
               h3("Dataset V Data", style = "margin: 0;")
             ),
             card_body(
-              DTOutput(ns("table_V"))
+              DT_table_in_data_browser$ui(ns("table_V"))
             )
           )
         )
@@ -202,48 +202,16 @@ ui <- function(id) {
 
 
 #' @export
-server <- function(id) {
+server <- function(id, datasets) {
   moduleServer(id, function(input, output, session) {
-    # Placeholder for loading datasets
-    datasets <- reactive({
-      list(
-        I = data.frame(
-          Variable1 = c("Sample1", "Sample2", "Sample3"),
-          Variable2 = c(10, 20, 30),
-          Variable3 = c("Type A", "Type B", "Type A")
-        ),
-        II = data.frame(
-          Variable1 = c("Sample1", "Sample2", "Sample3"),
-          Variable2 = c(15, 25, 35),
-          Variable3 = c("Type C", "Type D", "Type C")
-        ),
-        III = data.frame(
-          Variable1 = c("Sample1", "Sample2", "Sample3"),
-          Variable2 = c(40, 50, 60),
-          Variable3 = c("Type E", "Type F", "Type E")
-        ),
-        IV = data.frame(
-          Variable1 = c("Sample1", "Sample2", "Sample3"),
-          Variable2 = c(70, 80, 90),
-          Variable3 = c("Type G", "Type H", "Type G")
-        ),
-        V = data.frame(
-          Variable1 = c("Sample1", "Sample2", "Sample3"),
-          Variable2 = c(100, 110, 120),
-          Variable3 = c("Type I", "Type J", "Type I")
-        )
-      )
-    })
-    
+   
     # Render tables
    DT_table_in_data_browser$server("Dataset_1_table", dataset = datasets$I  , table_caption = "Dataset I (Sidebar Table)")
-   # DT_table_in_data_browser$server("table_I", dataset = datasets$I, table_caption = "Dataset I - Interactive Table")
-   # DT_table_in_data_browser$server("table_II", dataset = datasets$II, table_caption = "Dataset II - Interactive Table")
-   # DT_table_in_data_browser$server("table_III", dataset = datasets$III, table_caption = "Dataset III - Interactive Table")
-   # DT_table_in_data_browser$server("table_IV", dataset = datasets$IV, table_caption = "Dataset IV - Interactive Table")
-   # DT_table_in_data_browser$server("table_V", dataset = datasets$V, table_caption = "Dataset V - Interactive Table")
-   # 
-   #  
+   DT_table_in_data_browser$server("table_II", dataset = datasets$II, table_caption = "Dataset II - Interactive Table")
+   DT_table_in_data_browser$server("table_III", dataset = datasets$III, table_caption = "Dataset III - Interactive Table")
+   DT_table_in_data_browser$server("table_IV", dataset = datasets$IV, table_caption = "Dataset IV - Interactive Table")
+   DT_table_in_data_browser$server("table_V", dataset = datasets$V, table_caption = "Dataset V - Interactive Table")
+   
     # Tab switching logic
     observeEvent(input$dataset_tabs, {
       # You can add specific actions when tabs are switched
