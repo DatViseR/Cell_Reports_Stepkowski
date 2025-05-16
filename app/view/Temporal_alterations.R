@@ -1,11 +1,14 @@
 box::use(
   shiny[moduleServer, NS, selectInput, textAreaInput, actionButton, div, h3, h4, p, br, 
-        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot, selectizeInput],
-  bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel]
+        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot, selectizeInput, observe],
+  bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel],
+  graphics[text],
+  # Import the GO_selection_module
+  app/view/GO_selection_module
 )
 
 #' @export
-ui <- function(id) {
+ui <- function(id, GO = NULL) {
   ns <- NS(id)
   
   layout_sidebar(
@@ -17,11 +20,10 @@ ui <- function(id) {
       accordion(
         open = TRUE,
         accordion_panel(
-          "Select GO categories to highilight",
-          toggle("show_go_category", "Visualize GO Categories", FALSE),
-          # reactive UI module for the GO selection feuture
-          GO_selection_module$uii(ns("go_selection_temporal")),
-              ),
+          "GO Categories",
+          # Implement GO_selection_module UI
+          GO_selection_module$ui(ns("go_selection_temporal"))
+        )
       )
     ),
     
@@ -90,22 +92,24 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id) {
+server <- function(id, GO= NULL) {
   moduleServer(id, function(input, output, session) {
-    # Server logic would go here - for now just placeholders
+    # Get the GO data from parent scope to pass to GO_selection_module
+    # This will be available from main.R
     
-    # color picker for GO
-#    color_picker$server(id = ns("color_picker")) 
-    GO_selection_module$server("go_selection_temporal")
+    # Initialize the GO selection module and get the reactive values
+    go_selection <- GO_selection_module$server("go_selection_temporal", GO = GO)
     
+    # Observe selected GO categories for visualization
+    observe({
+      selected_go <- go_selection$chosen_go()
+      if (!is.null(selected_go)) {
+        cat("Selected GO categories:", paste(selected_go, collapse=", "), "\n")
+        # This data can now be used in plots
+      }
+    })
     
-    
-    
-    
-    
-    
-    
-    # Placeholder for volcano plots
+    # Placeholder for volcano plots - can be updated to use selected GO categories
     output$volcano_2h <- renderPlot({
       # Placeholder plot
       plot(1:10, 1:10, type = "n", xlab = "log2 Fold Change", ylab = "-log10(p-value)",

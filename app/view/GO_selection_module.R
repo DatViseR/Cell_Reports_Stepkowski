@@ -5,47 +5,98 @@
 #in a reactive expression that can be used by other modules.
 
 
-# Observe changes to the show_go_category input
-observeEvent(input$show_go_category, {
-  if (input$show_go_category) {
-    cat( "GO categories selection enabled", "INFO from input$show_go_category")
-  } else {
-    cat("GO categories selection disabled", "INFO from input$show_go_category")
-    # Clears the selectize input when disabling
-    updateSelectizeInput(session, "go_category", selected = NULL)
-  }
-})
+box::use(
+shiny[moduleServer, NS, selectizeInput, updateSelectizeInput, renderUI, uiOutput,
+      observeEvent, reactive, observe, req, isolate],
+bslib[card, card_body],
+htmltools[div, tags]
+)
 
-# Render the UI based on the toggle
-output$go_category_ui <- renderUI({
-  if (input$show_go_category) {
-    selectizeInput("go_category", "Select from ~8000 unique GO categories", choices = NULL, multiple = TRUE)
-  }
-})
-
-observe({
-  if (input$show_go_category) {
-    cat( "GO categories updated", "INFO from input$show_go_category")
-    updateSelectizeInput(session, "go_category", choices = unique(GO$name), server = TRUE)
-    
-  }
-})
-
-# Reactive expression to track chosen GO categories
-# chosen_go reactive returns NULL when GO categories are disabled
-chosen_go <- reactive({
-  # Only return GO categories if the feature is enabled
-  if (!input$show_go_category) {
-    cat("GO categories disabled - returning NULL", "INFO")
-    return(NULL)
-  }
+#' @export
+uii <- function(id) {
+  ns <- NS(id)
   
-  cat("Returning selected GO categories", "INFO")
-  input$go_category
-})
+  div(
+    uiOutput(ns("go_category_ui"))
+  )
+}
 
+#' @export
+ui <- function(id) {
+  ns <- NS(id)
+  
+  div(
+    tags$label("GO Categories Selection", class = "control-label"),
+    tags$div(
+      tags$input(
+        id = ns("show_go_category"), 
+        type = "checkbox", 
+        class = "form-check-input"
+      ),
+      tags$label(
+        "Visualize GO Categories", 
+        class = "form-check-label",
+        `for` = ns("show_go_category")
+      )
+    ),
+    uiOutput(ns("go_category_ui"))
+  )
+}
 
-
-
-
-
+#' @export
+server <- function(id, GO = NULL) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+    
+    # Observe changes to the show_go_category input
+    observeEvent(input$show_go_category, {
+      if (input$show_go_category) {
+        cat("GO categories selection enabled\n")
+      } else {
+        cat("GO categories selection disabled\n")
+        # Clears the selectize input when disabling
+        updateSelectizeInput(session, "go_category", selected = NULL)
+      }
+    })
+    
+    # Render the UI based on the toggle
+    output$go_category_ui <- renderUI({
+      if (input$show_go_category) {
+        selectizeInput(ns("go_category"), "Select from ~8000 unique GO categories", 
+                       choices = NULL, 
+                       multiple = TRUE,
+                       options = list(placeholder = 'Start typing to search GO terms...'))
+      }
+    })
+    
+    # Update selectize input with GO categories
+    observe({
+      req(input$show_go_category)
+      
+      
+      cat("Updating GO categories list\n")
+      updateSelectizeInput(session, "go_category", 
+                           choices = unique(GO$name), 
+                           server = TRUE)
+    })
+    
+  
+    # Reactive expression to track chosen GO categories
+    chosen_go <- reactive({
+      if (input$show_go_category) {
+        req(input$go_category)
+        cat("Chosen GO categories:", paste(input$go_category, collapse=", "), "\n")
+        return(input$go_category)
+      } else {
+        return(NULL)
+      }
+    })
+    
+    # Return the chosen GO categories
+    return(list(
+      chosen_go = chosen_go
+    ))
+   
+  }
+  )
+}

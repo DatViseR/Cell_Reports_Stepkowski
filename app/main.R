@@ -110,6 +110,7 @@ server <- function(id) {
       III = dataset_3,
       IV = dataset_4, 
       V = dataset_5)
+    
     cat("Datasets wrapped into list")
     
     
@@ -121,7 +122,7 @@ server <- function(id) {
     Data_browser$server("dataset_browser", 
                         datasets = datasets)
     
-  Temporal_alterations$server("temporal_alterations")
+  Temporal_alterations$server("temporal_alterations", GO = GO)
       
    
     CCCP_vs_Bortezomib$server("CCCP_vs_Bortezomib")
