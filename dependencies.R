@@ -1,5 +1,6 @@
 # This file allows packrat (used by rsconnect during deployment) to pick up dependencies.
 library(arrow)
+library(colourpicker)
 library(data.table)
 library(dplyr)
 library(DT)

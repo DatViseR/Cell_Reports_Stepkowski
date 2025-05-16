@@ -4,7 +4,8 @@ box::use(
   bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel],
   graphics[text],
   # Import the GO_selection_module
-  app/view/GO_selection_module
+  app/view/GO_selection_module,
+  app/view/GO_Color_picker
 )
 
 #' @export
@@ -22,7 +23,8 @@ ui <- function(id, GO = NULL) {
         accordion_panel(
           "GO Categories",
           # Implement GO_selection_module UI
-          GO_selection_module$ui(ns("go_selection_temporal"))
+          GO_selection_module$ui(ns("go_selection_temporal")),
+          GO_Color_picker$ui(ns("go_color_picker"))
         )
       )
     ),
@@ -99,6 +101,10 @@ server <- function(id, GO= NULL) {
     
     # Initialize the GO selection module and get the reactive values
     go_selection <- GO_selection_module$server("go_selection_temporal", GO = GO)
+    
+    
+    # Initialize the color picker module with the chosen GO categories
+    go_colors <- GO_Color_picker$server("go_color_picker", chosen_go = go_selection$chosen_go)
     
     # Observe selected GO categories for visualization
     observe({
