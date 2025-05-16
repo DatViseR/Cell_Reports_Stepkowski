@@ -1,6 +1,6 @@
 box::use(
   shiny[moduleServer, NS, selectInput, textAreaInput, actionButton, div, h3, h4, p, br, 
-        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot],
+        fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot, selectizeInput],
   bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel]
 )
 
@@ -17,92 +17,11 @@ ui <- function(id) {
       accordion(
         open = TRUE,
         accordion_panel(
-          "Gene Selection",
-          selectInput(
-            ns("selection_type"),
-            "Selection Type",
-            choices = c("GO Category", "Custom Genes"),
-            selected = "GO Category"
-          ),
-          
-          # GO Category selection
-          conditionalPanel(
-            condition = "input.selection_type == 'GO Category'", 
-            ns = ns,
-            selectInput(
-              ns("go_category"),
-              "GO Category",
-              choices = c(
-                "Immune response" = "GO:0006955",
-                "Inflammatory response" = "GO:0006954",
-                "Cell proliferation" = "GO:0008283",
-                "Apoptotic process" = "GO:0006915",
-                "Response to stress" = "GO:0006950",
-                "Cell adhesion" = "GO:0007155"
+          "Select GO categories to highilight",
+          toggle("show_go_category", "Visualize GO Categories", FALSE),
+          # reactive UI module for the GO selection feuture
+          GO_selection_module$uii(ns("go_selection_temporal")),
               ),
-              selected = "GO:0006955"
-            ),
-            
-            # Additional filters for GO category
-            checkboxGroupInput(
-              ns("go_subcategories"),
-              "Subcategories",
-              choices = c(
-                "Cytokine signaling" = "cytokine",
-                "T cell activation" = "t_cell",
-                "B cell activation" = "b_cell",
-                "NK cell function" = "nk_cell"
-              )
-            )
-          ),
-          
-          # Custom gene selection
-          conditionalPanel(
-            condition = "input.selection_type == 'Custom Genes'",
-            ns = ns,
-            textAreaInput(
-              ns("custom_genes"),
-              "Enter Gene Names",
-              placeholder = "Enter gene names separated by commas or new lines (e.g., IL6, TNF, IFNG)",
-              rows = 5
-            ),
-            actionButton(
-              ns("load_example_genes"),
-              "Load Example Genes",
-              class = "btn-outline-info"
-            )
-          ),
-          
-          hr(),
-          actionButton(
-            ns("apply_selection"),
-            "Apply Selection",
-            class = "btn-primary",
-            width = "100%"
-          )
-        ),
-        
-        accordion_panel(
-          "Display Options",
-          checkboxGroupInput(
-            ns("time_points"),
-            "Time Points to Display",
-            choices = c("2h", "6h", "12h", "24h"),
-            selected = c("2h", "6h", "12h", "24h")
-          ),
-          selectInput(
-            ns("significance_threshold"),
-            "Significance Threshold",
-            choices = c("p < 0.05", "p < 0.01", "p < 0.001"),
-            selected = "p < 0.05"
-          ),
-          selectInput(
-            ns("fold_change_threshold"),
-            "Fold Change Threshold",
-            choices = c("FC > 1.5", "FC > 2.0", "FC > 3.0"),
-            selected = "FC > 2.0"
-          )
-        )
       )
     ),
     
@@ -174,6 +93,17 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     # Server logic would go here - for now just placeholders
+    
+    # color picker for GO
+#    color_picker$server(id = ns("color_picker")) 
+    GO_selection_module$server("go_selection_temporal")
+    
+    
+    
+    
+    
+    
+    
     
     # Placeholder for volcano plots
     output$volcano_2h <- renderPlot({
