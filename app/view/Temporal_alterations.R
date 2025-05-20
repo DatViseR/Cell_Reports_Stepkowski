@@ -1,7 +1,7 @@
 box::use(
   shiny[moduleServer, NS, selectInput, textAreaInput, actionButton, div, h3, h4, p, br, 
         fluidRow, column, plotOutput, hr, conditionalPanel, tags, checkboxGroupInput, renderPlot, selectizeInput, observe],
-  bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel],
+  bslib[card, card_header, card_body, layout_sidebar, sidebar, accordion, accordion_panel, input_switch],
   graphics[text],
   # Import the GO_selection_module
   app/view/GO_selection_module,
@@ -20,13 +20,11 @@ ui <- function(id, GO = NULL) {
       # GO Category Selection
       accordion(
         open = TRUE,
-        accordion_panel(
-          "GO Categories",
-          # Implement GO_selection_module UI
+         # Implement GO_selection_module UI
           GO_selection_module$ui(ns("go_selection_temporal")),
           GO_Color_picker$ui(ns("go_color_picker"))
         )
-      )
+     
     ),
     
     # Main content

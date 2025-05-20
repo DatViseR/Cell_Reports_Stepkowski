@@ -6,10 +6,10 @@
 
 
 box::use(
-shiny[moduleServer, NS, selectizeInput, updateSelectizeInput, renderUI, uiOutput,
-      observeEvent, reactive, observe, req, isolate],
-bslib[card, card_body],
-htmltools[div, tags]
+  shiny[moduleServer, NS, selectizeInput, updateSelectizeInput, renderUI, uiOutput,
+        observeEvent, reactive, observe, req, isolate],
+  bslib[card, card_body, input_switch],
+  htmltools[div, tags]
 )
 
 #' @export
@@ -25,21 +25,14 @@ uii <- function(id) {
 ui <- function(id) {
   ns <- NS(id)
   
-  div(
-    tags$label("GO Categories Selection", class = "control-label"),
-    tags$div(
-      tags$input(
-        id = ns("show_go_category"), 
-        type = "checkbox", 
-        class = "form-check-input"
-      ),
-      tags$label(
-        "Visualize GO Categories", 
-        class = "form-check-label",
-        `for` = ns("show_go_category")
-      )
+  div(style = "margin-left:20px",
+  input_switch(
+      id = ns("show_go_category"),
+      label = "Visualize GO Categories",
+      value = FALSE
     ),
-    uiOutput(ns("go_category_ui"))
+    uiOutput(ns("go_category_ui")),
+   
   )
 }
 
@@ -62,10 +55,11 @@ server <- function(id, GO = NULL) {
     # Render the UI based on the toggle
     output$go_category_ui <- renderUI({
       if (input$show_go_category) {
-        selectizeInput(ns("go_category"), "Select from ~8000 unique GO categories", 
+        selectizeInput(ns("go_category"), "Select from ~8000 unique GO categories",
+                       width = "80%",
                        choices = NULL, 
                        multiple = TRUE,
-                       options = list(placeholder = 'Start typing to search GO terms...'))
+                       options = list(placeholder = 'Type to browse GO...'))
       }
     })
     
@@ -80,13 +74,16 @@ server <- function(id, GO = NULL) {
                            server = TRUE)
     })
     
-  
+    
     # Reactive expression to track chosen GO categories
     chosen_go <- reactive({
-      if (input$show_go_category) {
-        req(input$go_category)
-        cat("Chosen GO categories:", paste(input$go_category, collapse=", "), "\n")
-        return(input$go_category)
+      if (isTRUE(input$show_go_category)) {
+        if (!is.null(input$go_category) && length(input$go_category) > 0) {
+          cat("Chosen GO categories:", paste(input$go_category, collapse=", "), "\n")
+          return(input$go_category)
+        } else {
+          return(NULL)
+        }
       } else {
         return(NULL)
       }
@@ -96,7 +93,7 @@ server <- function(id, GO = NULL) {
     return(list(
       chosen_go = chosen_go
     ))
-   
+    
   }
   )
 }

@@ -17,8 +17,8 @@ ui <- function(id) {
   ns <- NS(id)
   
   div(
-    h4("GO Category Colors"),
-    p("Select colors for each GO category to use in visualizations:"),
+    
+   
     uiOutput(ns("color_picker_ui"))
   )
 }
@@ -73,15 +73,21 @@ server <- function(id, chosen_go = reactive(NULL)) {
         sanitized_id <- gsub("[^a-zA-Z0-9]", "_", go_term)
         color_value <- DEFAULT_COLOR_PALETTE[(i - 1) %% length(DEFAULT_COLOR_PALETTE) + 1]
         
+        p("Select colors for each GO category to use in visualizations:")
+        
         div(
-          style = "margin-bottom: 10px;",
-          colourInput(
-            ns(paste0("color_", sanitized_id)), 
-            label = tags$span(
-              style = "font-size: 90%;", 
-              paste("Color for", go_term)
-            ),
-            value = color_value
+          style = "display: flex; justify-content: center;",
+          div(
+            style = "width: 220px; margin-right: 30px;",
+            colourInput( 
+              ns(paste0("color_", sanitized_id)), 
+              label = tags$span(
+                style = "font-size: 90%;", 
+                paste(go_term)
+              ),
+              value = color_value,
+              width = "100%"
+            )
           )
         )
       })
