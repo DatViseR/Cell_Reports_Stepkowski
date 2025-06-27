@@ -32,8 +32,8 @@ ui <- function(id) {
   tagList(
     tags$div(
       id = ns("sidebar_table_container"),
-      style = "max-width: 500px; min-width: 300px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); padding: 12px;",
-      DTOutput(ns("table"))
+      style = "min-width: 300px; margin: 0 auto; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); padding: 12px;",
+      DTOutput(ns("table"), width = "100%")
     )
   )
 }
@@ -53,7 +53,9 @@ server <- function(id, dataset, table_caption = NULL) {
           autoWidth = TRUE,
           dom = 'Bfrtip',
           buttons = c('copy', 'csv', 'excel'),
-          columnDefs = list(list(width = '100px', targets = "_all"))
+          autoWidth = FALSE,
+          width = "100%"
+          #columnDefs = list(list(width = '100px', targets = "_all"))
         ),
         extensions = 'Buttons',
         rownames = FALSE,
