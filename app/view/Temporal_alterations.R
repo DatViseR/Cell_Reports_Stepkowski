@@ -1,4 +1,3 @@
-# Only the volcano implementation section has been changed (plot sizes + param rename).
 box::use(
   shiny[
     moduleServer,
@@ -29,12 +28,14 @@ box::use(
   app / view / GO_Color_picker,
   app / view / Gene_symbols_input,
   app / view / Gene_symbols_file_input,
-  app / view / volcano
+  app / view / volcano,
+  app / view / GO_gene_mapper # Add this import
 )
 
 #' @export
 ui <- function(id, GO = NULL) {
   ns <- NS(id)
+
   layout_sidebar(
     sidebar = sidebar(
       width = 300,
@@ -62,7 +63,7 @@ ui <- function(id, GO = NULL) {
           fluidRow(
             column(
               width = 6,
-              volcano$ui(ns("volcano_STRESS_I"), height = "480px"),
+              volcano$ui(ns("volcano_STRESS_I"), height = "300px"),
               div(
                 tags$b("STRESS_I"),
                 style = "text-align: center; margin-top: 5px;"
@@ -70,7 +71,7 @@ ui <- function(id, GO = NULL) {
             ),
             column(
               width = 6,
-              volcano$ui(ns("volcano_STRESS_II"), height = "480px"),
+              volcano$ui(ns("volcano_STRESS_II"), height = "300px"),
               div(
                 tags$b("STRESS_II"),
                 style = "text-align: center; margin-top: 5px;"
@@ -81,7 +82,7 @@ ui <- function(id, GO = NULL) {
           fluidRow(
             column(
               width = 6,
-              volcano$ui(ns("volcano_RECOVERY_I"), height = "480px"),
+              volcano$ui(ns("volcano_RECOVERY_I"), height = "300px"),
               div(
                 tags$b("RECOVERY_I"),
                 style = "text-align: center; margin-top: 5px;"
@@ -89,7 +90,7 @@ ui <- function(id, GO = NULL) {
             ),
             column(
               width = 6,
-              volcano$ui(ns("volcano_RECOVERY_II"), height = "480px"),
+              volcano$ui(ns("volcano_RECOVERY_II"), height = "300px"),
               div(
                 tags$b("RECOVERY_II"),
                 style = "text-align: center; margin-top: 5px;"
@@ -125,7 +126,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
       warning("Temporal_alterations$server: 'datasets$I' not provided.")
     }
 
-    # Controls (unchanged)
+    # Initialize GO gene mapper
+    go_mapper <- GO_gene_mapper$server("go_mapper", GO_data = GO)
+
+    # GO selection + colors
     go_selection <- GO_selection_module$server("go_selection_temporal", GO = GO)
     go_colors <- GO_Color_picker$server(
       "go_color_picker",
@@ -139,6 +143,7 @@ server <- function(id, GO = NULL, datasets = NULL) {
       }
     })
 
+    # User custom genes (manual + file)
     manual_genes <- Gene_symbols_input$server(
       "input_custom_genes",
       dataset = if (!is.null(datasets) && !is.null(datasets$I)) {
@@ -159,37 +164,32 @@ server <- function(id, GO = NULL, datasets = NULL) {
       unique(c(manual_genes(), file_genes()))
     })
 
-    # --- GO gene retrieval placeholder (replace with real mapping) ----------
-    # If your GO data has columns like term / Category and Gene (Gene_single),
-    # implement mapping here.
-    get_go_genes_for <- function(go_name) {
-      # TODO: Implement real GO lookup using GO object if structure known.
-      # Return character vector of genes for the GO category.
-      character()
-    }
-
-    # Renamed to avoid conflict with module argument
-    go_annotations_r <- reactive({
+    # Build GO highlight list: list of lists(category, genes, color)
+    go_highlights <- reactive({
       sel <- go_selection$chosen_go()
       if (!length(sel)) {
         return(NULL)
       }
       cols <- go_colors$chosen_colors()
-      out <- lapply(sel, function(cat) {
-        genes <- unique(get_go_genes_for(cat))
+      out <- lapply(sel, function(go_cat) {
+        # Use the GO mapper to get genes for this category
+        genes <- unique(go_mapper$get_genes_for_go(go_cat))
         if (!length(genes)) {
+          cat("No genes found for GO category:", go_cat, "\n")
           return(NULL)
         }
+        cat("Found", length(genes), "genes for GO category:", go_cat, "\n")
         list(
-          category = cat,
+          category = go_cat,
           genes = genes,
-          color = if (!is.null(cols) && cat %in% names(cols)) {
-            cols[[cat]]
+          color = if (!is.null(cols) && go_cat %in% names(cols)) {
+            cols[[go_cat]]
           } else {
             "#FF9900"
           }
         )
       })
+      # Remove NULLs
       out <- Filter(Negate(is.null), out)
       if (!length(out)) {
         return(NULL)
@@ -197,70 +197,65 @@ server <- function(id, GO = NULL, datasets = NULL) {
       out
     })
 
-    full_dataset <- reactive({
-      if (is.null(datasets) || is.null(datasets$I)) {
-        return(NULL)
-      }
-      datasets$I
-    })
+    # Helper to subset by time point
+    subset_timepoint <- function(tp) {
+      reactive({
+        if (is.null(datasets) || is.null(datasets$I)) {
+          return(NULL)
+        }
+        df <- datasets$I
+        if (!"Time_point" %in% names(df)) {
+          return(NULL)
+        }
+        sub <- df[df$Time_point == tp, , drop = FALSE]
+        if (!all(c("genes", "FC", "pval") %in% names(sub))) {
+          return(NULL)
+        }
+        sub <- sub[!is.na(sub$FC) & !is.na(sub$pval), ]
+        sub
+      })
+    }
 
-    fc_cutoff <- reactive(1.5)
-    q_cutoff <- reactive(0.05)
+    ds_STRESS_I <- subset_timepoint("STRESS_I")
+    ds_STRESS_II <- subset_timepoint("STRESS_II")
+    ds_RECOVERY_I <- subset_timepoint("RECOVERY_I")
+    ds_RECOVERY_II <- subset_timepoint("RECOVERY_II")
 
-    # Larger square volcano plots with labels
+    # Volcano modules with new separate highlight arguments
     volcano$server(
       "volcano_STRESS_I",
-      dataset = full_dataset,
-      timepoint = "STRESS_I",
-      go_annotations = go_annotations_r,
+      dataset = ds_STRESS_I,
+      go_highlights = go_annotations,
       custom_highlights = custom_genes,
-      fc_cutoff = fc_cutoff,
-      q_cutoff = q_cutoff,
-      title = reactive("STRESS_I Volcano"),
-      max_custom_labels = reactive(30),
-      label_font_size = reactive(11)
+      title = reactive("STRESS_I Volcano")
     )
 
     volcano$server(
       "volcano_STRESS_II",
-      dataset = full_dataset,
-      timepoint = "STRESS_II",
-      go_annotations = go_annotations_r,
+      dataset = ds_STRESS_II,
+      go_highlights = go_annotations,
+
       custom_highlights = custom_genes,
-      fc_cutoff = fc_cutoff,
-      q_cutoff = q_cutoff,
-      title = reactive("STRESS_II Volcano"),
-      max_custom_labels = reactive(30),
-      label_font_size = reactive(11)
+      title = reactive("STRESS_II Volcano")
     )
 
     volcano$server(
       "volcano_RECOVERY_I",
-      dataset = full_dataset,
-      timepoint = "RECOVERY_I",
-      go_annotations = go_annotations_r,
+      dataset = ds_RECOVERY_I,
+      go_highlights = go_annotations,
       custom_highlights = custom_genes,
-      fc_cutoff = fc_cutoff,
-      q_cutoff = q_cutoff,
-      title = reactive("RECOVERY_I Volcano"),
-      max_custom_labels = reactive(30),
-      label_font_size = reactive(11)
+      title = reactive("RECOVERY_I Volcano")
     )
 
     volcano$server(
       "volcano_RECOVERY_II",
-      dataset = full_dataset,
-      timepoint = "RECOVERY_II",
-      go_annotations = go_annotations_r,
+      dataset = ds_RECOVERY_II,
+      go_highlights = go_annotations,
       custom_highlights = custom_genes,
-      fc_cutoff = fc_cutoff,
-      q_cutoff = q_cutoff,
-      title = reactive("RECOVERY_II Volcano"),
-      max_custom_labels = reactive(30),
-      label_font_size = reactive(11)
+      title = reactive("RECOVERY_II Volcano")
     )
 
-    # Heatmap placeholder
+    # Heatmap placeholder (unchanged)
     output$temporal_heatmap <- renderPlot({
       plot(
         1:10,
