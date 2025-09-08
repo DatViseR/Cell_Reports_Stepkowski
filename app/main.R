@@ -122,7 +122,7 @@ server <- function(id) {
     Data_browser$server("dataset_browser", 
                         datasets = datasets)
     
-  Temporal_alterations$server("temporal_alterations", GO = GO)
+  Temporal_alterations$server("temporal_alterations", GO = GO, dataset_1 = dataset_1)
       
    
     CCCP_vs_Bortezomib$server("CCCP_vs_Bortezomib")
