@@ -20,7 +20,8 @@ box::use(
     checkboxGroupInput,
     renderPlot,
     selectizeInput,
-    observe
+    observe,
+    fileInput
   ],
   bslib[
     card,
@@ -33,11 +34,10 @@ box::use(
     input_switch
   ],
   graphics[text],
-  # Import the GO_selection_module
   app / view / GO_selection_module,
   app / view / GO_Color_picker,
-  app / view / Gene_symbols_input
-  # app / view / Gene_symbols_file_input
+  app / view / Gene_symbols_input,
+  app / view / Gene_symbols_file_input
 )
 
 #' @export
@@ -48,26 +48,19 @@ ui <- function(id, GO = NULL) {
     sidebar = sidebar(
       width = 300,
       title = "Analysis Options",
-
-      # GO Category Selection
       accordion(
         open = TRUE,
-        # Implement GO_selection_module UI
         GO_selection_module$ui(ns("go_selection_temporal")),
         GO_Color_picker$ui(ns("go_color_picker")),
-        Gene_symbols_input$ui(ns("input_custom_genes"))
-        #Gene_symbols_file_input$ui(ns("input_custom_genes_file"))
+        Gene_symbols_input$ui(ns("input_custom_genes")),
+        Gene_symbols_file_input$ui(ns("input_custom_genes_file"))
       )
     ),
-
-    # Main content
     div(
       h3(
         "Temporal Gene Expression Alterations",
         style = "color: #0062cc; margin-bottom: 20px;"
       ),
-
-      # Volcano plots - 2x2 grid
       card(
         card_header(
           h4("Differential Expression Across Time Points", style = "margin: 0;")
@@ -116,10 +109,7 @@ ui <- function(id, GO = NULL) {
           )
         )
       ),
-
       br(),
-
-      # Heatmap
       card(
         card_header(
           h4("Expression Heatmap Across Time Points", style = "margin: 0;")
@@ -143,41 +133,59 @@ ui <- function(id, GO = NULL) {
 #' @export
 server <- function(id, GO = NULL, datasets = NULL) {
   moduleServer(id, function(input, output, session) {
-    # Get the GO data from parent scope to pass to GO_selection_module
-    # This will be available from main.R
+    # Safety check
+    if (is.null(datasets) || is.null(datasets$I)) {
+      warning(
+        "Temporal_alterations$server: 'datasets$I' not supplied; gene input modules will return empty vectors."
+      )
+    }
 
-    # Initialize the GO selection module and get the reactive values
+    # GO selection
     go_selection <- GO_selection_module$server("go_selection_temporal", GO = GO)
 
-    # Initialize the color picker module with the chosen GO categories
+    # GO colors
     go_colors <- GO_Color_picker$server(
       "go_color_picker",
       chosen_go = go_selection$chosen_go
     )
 
-    # Observe selected GO categories for visualization
+    # Diagnostics
     observe({
       selected_go <- go_selection$chosen_go()
-      if (!is.null(selected_go)) {
+      if (length(selected_go)) {
         cat(
           "Selected GO categories:",
           paste(selected_go, collapse = ", "),
           "\n"
         )
-        # This data can now be used in plots
       }
     })
 
-    # implement gene symbol input modules to get genes from dataset I
-    custom_genes <- Gene_symbols_input$server(
+    # Manual gene selection (from dataset I)
+    manual_genes <- Gene_symbols_input$server(
       "input_custom_genes",
-      dataset = datasets$I,
+      dataset = if (!is.null(datasets)) {
+        datasets$I
+      } else {
+        data.frame(Gene_single = character())
+      },
       gene_column = "Gene_single"
     )
 
-    # Placeholder for volcano plots - can be updated to use selected GO categories
+    # File-based gene upload
+    file_genes <- Gene_symbols_file_input$server(
+      "input_custom_genes_file",
+      allowed_ext = c("txt", "tsv"),
+      max_genes = 5000
+    )
+
+    # Combined gene set (union of both inputs)
+    combined_genes <- shiny::reactive({
+      unique(c(manual_genes(), file_genes()))
+    })
+
+    # Placeholder volcano plots
     output$volcano_2h <- renderPlot({
-      # Placeholder plot
       plot(
         1:10,
         1:10,
@@ -190,7 +198,6 @@ server <- function(id, GO = NULL, datasets = NULL) {
     })
 
     output$volcano_6h <- renderPlot({
-      # Placeholder plot
       plot(
         1:10,
         1:10,
@@ -203,7 +210,6 @@ server <- function(id, GO = NULL, datasets = NULL) {
     })
 
     output$volcano_12h <- renderPlot({
-      # Placeholder plot
       plot(
         1:10,
         1:10,
@@ -216,7 +222,6 @@ server <- function(id, GO = NULL, datasets = NULL) {
     })
 
     output$volcano_24h <- renderPlot({
-      # Placeholder plot
       plot(
         1:10,
         1:10,
@@ -228,9 +233,8 @@ server <- function(id, GO = NULL, datasets = NULL) {
       text(5, 5, "Volcano Plot\nPlaceholder", cex = 2)
     })
 
-    # Placeholder for heatmap
+    # Placeholder heatmap
     output$temporal_heatmap <- renderPlot({
-      # Placeholder plot
       plot(
         1:10,
         1:10,
@@ -241,5 +245,12 @@ server <- function(id, GO = NULL, datasets = NULL) {
       )
       text(5, 5, "Heatmap\nPlaceholder", cex = 3)
     })
+
+    # (Optional) expose combined genes for parent usage
+    # return(list(
+    #   genes = combined_genes,
+    #   go = go_selection$chosen_go,
+    #   colors = go_colors$chosen_colors
+    # ))
   })
 }
