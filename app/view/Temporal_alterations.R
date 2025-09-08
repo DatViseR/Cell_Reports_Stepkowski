@@ -15,6 +15,7 @@ box::use(
     plotOutput,
     hr,
     conditionalPanel,
+    updateSelectizeInput,
     tags,
     checkboxGroupInput,
     renderPlot,
@@ -140,7 +141,7 @@ ui <- function(id, GO = NULL) {
 }
 
 #' @export
-server <- function(id, GO = NULL) {
+server <- function(id, GO = NULL, datasets = NULL) {
   moduleServer(id, function(input, output, session) {
     # Get the GO data from parent scope to pass to GO_selection_module
     # This will be available from main.R
@@ -170,7 +171,8 @@ server <- function(id, GO = NULL) {
     # implement gene symbol input modules to get genes from dataset I
     custom_genes <- Gene_symbols_input$server(
       "input_custom_genes",
-      dataset = datasets$I$Gene_single
+      dataset = datasets$I,
+      gene_column = "Gene_single"
     )
 
     # Placeholder for volcano plots - can be updated to use selected GO categories
