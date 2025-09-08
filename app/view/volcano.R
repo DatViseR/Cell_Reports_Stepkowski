@@ -28,6 +28,7 @@ box::use(
   plotly[
     plot_ly,
     add_markers,
+    add_text,
     layout,
     config,
     event_data
@@ -349,12 +350,11 @@ server <- function(
               legendgroup = "Custom",
               showlegend = TRUE
             ) |>
-            # Text labels trace
-            add_markers(
+            # Text labels trace using add_text instead of add_markers
+            plotly::add_text(
               data = sub_label,
               x = ~log2FC,
               y = ~neg_log_metric,
-              mode = "text",
               text = ~genes,
               textposition = "top center",
               textfont = list(color = "#000000", size = label_font_size()),

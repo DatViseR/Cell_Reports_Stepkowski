@@ -170,7 +170,7 @@ server <- function(id, GO = NULL, datasets = NULL) {
       if (!length(sel)) {
         return(NULL)
       }
-      cols <- go_colors$chosen_colors()
+      cols <- go_colors$go_colors()
       out <- lapply(sel, function(go_cat) {
         # Use the GO mapper to get genes for this category
         genes <- unique(go_mapper$get_genes_for_go(go_cat))
