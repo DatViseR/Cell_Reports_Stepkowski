@@ -1,400 +1,456 @@
-# Extended volcano module to support separate custom gene and GO category highlighting.
-# Backward compatible with previous single highlight_genes approach.
-
+# Volcano module (updated)
+# - Parameter renamed: go_annotations (formerly go_highlights) to avoid name collisions.
+# - Added square aspect ratio and adjustable height.
+# - Uses q_value (if present) for significance; falls back to p_value if q_value missing.
+# - Adds text labels for custom genes with a cap to prevent clutter.
+# - Efficient single pass data prep; layered Plotly traces.
+#
+# Required columns in incoming dataset() (full long dataset):
+#   Time_point, Gene_single or Gene_names, `log2(Fold)`, q_value (preferred) or p_value (fallback)
+#
+# Public API:
+# ui(id, height, width)
+# server(
+#   id,
+#   dataset,            # reactive: full long dataset
+#   timepoint,          # scalar character (e.g. "STRESS_I")
+#   go_annotations,     # reactive(list(list(category, genes, color)), or NULL)
+#   custom_highlights,  # reactive(character vector) or NULL
+#   fc_cutoff,          # reactive numeric (linear FC threshold, default 1.5)
+#   q_cutoff,           # reactive numeric (q-value threshold, default 0.05)
+#   title,              # reactive character
+#   max_custom_labels,  # reactive integer (default 30)
+#   label_font_size     # reactive integer (default 11)
+# )
+#
 box::use(
-  shiny[moduleServer, NS, reactive, req],
+  shiny[moduleServer, NS, reactive, req, validate, need],
   plotly[
     plot_ly,
-    layout,
-    event_data,
     add_markers,
-    add_annotations,
+    layout,
     config,
-    toRGB
+    event_data
   ],
-  dplyr[mutate, case_when, filter],
-  stats[quantile]
+  dplyr[mutate, filter, case_when, arrange, desc, slice_head]
 )
 
-#' Volcano plot UI
-#' @export
-ui <- function(id, height = "600px", width = "100%") {
+ui <- function(id, height = "480px", width = "100%") {
   ns <- NS(id)
   shiny::div(
     plotly::plotlyOutput(ns("volcano_plot"), height = height, width = width),
     shiny::div(
-      style = "font-size: 90%; color: #666; margin-top: 10px;",
-      shiny::p(
-        shiny::span(
-          shiny::tags$b("Hover"),
-          " for details; ",
-          shiny::span(shiny::tags$b("Click"), " to select a gene.")
-        )
-      )
+      style = "font-size: 90%; color: #666; margin-top: 4px;",
+      "Hover for details; click a point to capture the gene. Custom genes are labeled."
     )
   )
 }
 
-#' Volcano plot server
-#'
-#' New (optional) parameters:
-#'   - go_highlights: reactive(list of lists), each list element must contain:
-#'       $category (character, GO label to show in legend)
-#'       $genes    (character vector of genes in that GO category)
-#'       $color    (hex color)
-#'   - custom_highlights: reactive(character vector) of user custom genes (shown in black)
-#'
-#' If go_highlights/custom_highlights are provided they override the old single-group highlighting.
-#' Old highlight_genes + highlight_info still work for backward compatibility.
-#'
-#' @export
 server <- function(
   id,
   dataset,
-  highlight_genes = reactive(NULL), # legacy single-group
-  highlight_info = reactive(NULL), # legacy info block
-  fc_cutoff = reactive(1),
-  pval_cutoff = reactive(0.05),
-  title = reactive("Volcano Plot"),
-  go_highlights = reactive(NULL), # new multi-category GO highlights
-  custom_highlights = reactive(NULL) # new custom user genes
+  timepoint,
+  go_annotations = reactive(NULL),
+  custom_highlights = reactive(NULL),
+  fc_cutoff = reactive(1.5),
+  q_cutoff = reactive(0.05),
+  title = reactive("Volcano"),
+  max_custom_labels = reactive(30),
+  label_font_size = reactive(11)
 ) {
+  stopifnot(is.character(timepoint), length(timepoint) == 1)
+
   moduleServer(id, function(input, output, session) {
-    # Prepare main data
-    plot_data <- reactive({
+    prepared <- reactive({
       req(dataset())
-      data <- dataset()
+      df <- dataset()
 
-      required_cols <- c("genes", "FC", "pval")
-      if (!all(required_cols %in% names(data))) {
-        missing <- required_cols[!required_cols %in% names(data)]
-        stop(
-          "Missing required columns in dataset: ",
-          paste(missing, collapse = ", ")
-        )
+      validate(
+        need("Time_point" %in% names(df), "Time_point column missing."),
+        need(
+          any(c("Gene_single", "Gene_names") %in% names(df)),
+          "Need Gene_single or Gene_names column."
+        ),
+        need("log2(Fold)" %in% names(df), "`log2(Fold)` column missing.")
+      )
+
+      gene_col <- if ("Gene_single" %in% names(df)) {
+        "Gene_single"
+      } else {
+        "Gene_names"
+      }
+      sub <- df[df$Time_point == timepoint, , drop = FALSE]
+
+      if (!nrow(sub)) {
+        return(sub)
       }
 
-      data <- mutate(
-        data,
-        neg_log_pval = -log10(pval),
-        log2FC = if ("log2FC" %in% names(data)) data$log2FC else log2(FC),
+      # Choose q_value if present; else p_value
+      y_col <- if ("q_value" %in% names(sub)) {
+        "q_value"
+      } else if ("p_value" %in% names(sub)) {
+        "p_value"
+      } else {
+        NULL
+      }
+      if (is.null(y_col)) {
+        stop("Neither q_value nor p_value present in dataset.")
+      }
+
+      # Clean and guard
+      sub[[y_col]][is.na(sub[[y_col]]) | sub[[y_col]] <= 0] <- min(
+        sub[[y_col]][sub[[y_col]] > 0],
+        na.rm = TRUE
+      )
+      sub[[y_col]][sub[[y_col]] > 1] <- 1
+
+      sub$genes <- sub[[gene_col]]
+      sub$log2FC <- sub[["log2(Fold)"]]
+      sub$metric <- sub[[y_col]]
+      sub$neg_log_metric <- -log10(sub$metric)
+
+      fc_thr <- log2(fc_cutoff())
+      q_thr <- q_cutoff()
+
+      sub <- mutate(
+        sub,
         significance = case_when(
-          abs(log2FC) >= log2(fc_cutoff()) & pval < pval_cutoff() ~
-            ifelse(log2FC >= 0, "Upregulated", "Downregulated"),
-          TRUE ~ "Not Significant"
-        )
+          abs(log2FC) >= fc_thr & metric < q_thr & log2FC > 0 ~ "Up",
+          abs(log2FC) >= fc_thr & metric < q_thr & log2FC <= 0 ~ "Down",
+          TRUE ~ "NotSig"
+        ),
+        metric_label = if (y_col == "q_value") "q-value" else "p-value",
+        using_q = (y_col == "q_value")
       )
 
-      data
+      sub
     })
 
-    # Combined legacy highlight vector (union) if new system not used
-    legacy_highlight_vector <- reactive({
-      # Only used if new highlight system is absent
-      if (!is.null(go_highlights()) || !is.null(custom_highlights())) {
-        return(character())
-      }
-      highlight_genes() %||% character()
-    })
-
-    # Create plot
     output$volcano_plot <- plotly::renderPlotly({
-      req(plot_data())
-      dat <- plot_data()
+      dat <- prepared()
+      if (is.null(dat) || !nrow(dat)) {
+        return(
+          plotly::plot_ly() |>
+            layout(
+              annotations = list(
+                text = paste0("No data for time point: ", timepoint),
+                x = 0.5,
+                y = 0.5,
+                xref = "paper",
+                yref = "paper",
+                showarrow = FALSE
+              )
+            )
+        )
+      }
 
-      # Base significance colors
-      sig_colors <- c(
-        "Upregulated" = "#FF4136",
-        "Downregulated" = "#0074D9",
-        "Not Significant" = "#AAAAAA"
+      # Split data
+      ns <- dat[dat$significance == "NotSig", , drop = FALSE]
+      up <- dat[dat$significance == "Up", , drop = FALSE]
+      dn <- dat[dat$significance == "Down", , drop = FALSE]
+
+      base_cols <- list(
+        NotSig = "#C7C7C7",
+        Up = "#E74C3C",
+        Down = "#1F77B4"
       )
 
-      # Add legacy highlight flag (if using old API)
-      dat$legacy_highlighted <- dat$genes %in% legacy_highlight_vector()
-
-      # Base scatter (all genes)
+      # Base (Not significant)
       p <- plot_ly(
-        data = dat,
-        source = "volcano",
+        data = ns,
         x = ~log2FC,
-        y = ~neg_log_pval,
+        y = ~neg_log_metric,
         type = "scatter",
         mode = "markers",
-        customdata = ~genes,
-        text = ~ paste(
-          "Gene:",
+        marker = list(color = base_cols$NotSig, size = 5, opacity = 0.55),
+        text = ~ paste0(
+          "<b>",
           genes,
-          "<br>",
-          "log2(FC):",
+          "</b><br>",
+          "log2(FC): ",
           round(log2FC, 3),
           "<br>",
-          "p-value:",
-          signif(pval, 3),
-          if ("qvalue" %in% names(dat)) {
-            paste("<br>q-value:", signif(dat$qvalue, 3))
-          } else {
-            ""
-          }
+          "-log10(",
+          metric_label,
+          "): ",
+          round(neg_log_metric, 3),
+          "<br>",
+          metric_label,
+          ": ",
+          signif(metric, 3)
         ),
         hoverinfo = "text",
-        marker = list(
-          color = sig_colors[dat$significance],
-          size = 7,
-          line = list(width = 0.3, color = "rgba(0,0,0,0.2)")
-        ),
+        customdata = ~genes,
+        name = "Not significant",
+        legendgroup = "Significance",
         showlegend = TRUE,
-        legendgroup = "significance"
+        source = "volcano"
       )
 
-      # Add legend dummy traces for significance categories (for consistent legend ordering)
-      # (Optional: skip if not needed; significance colors already appear from base trace since color is direct vector.)
-      # We'll skip extra dummy traces to keep code simpler.
+      if (nrow(dn)) {
+        p <- p |>
+          add_markers(
+            data = dn,
+            x = ~log2FC,
+            y = ~neg_log_metric,
+            marker = list(color = base_cols$Down, size = 6),
+            text = ~ paste0(
+              "<b>",
+              genes,
+              "</b><br>",
+              "Downregulated<br>",
+              "log2(FC): ",
+              round(log2FC, 3),
+              "<br>",
+              "-log10(",
+              metric_label,
+              "): ",
+              round(neg_log_metric, 3),
+              "<br>",
+              metric_label,
+              ": ",
+              signif(metric, 3)
+            ),
+            hoverinfo = "text",
+            customdata = ~genes,
+            name = "Downregulated",
+            legendgroup = "Significance",
+            showlegend = TRUE
+          )
+      }
 
-      # If new multi-group highlighting is provided:
-      go_list <- go_highlights()
-      custom_vec <- custom_highlights()
+      if (nrow(up)) {
+        p <- p |>
+          add_markers(
+            data = up,
+            x = ~log2FC,
+            y = ~neg_log_metric,
+            marker = list(color = base_cols$Up, size = 6),
+            text = ~ paste0(
+              "<b>",
+              genes,
+              "</b><br>",
+              "Upregulated<br>",
+              "log2(FC): ",
+              round(log2FC, 3),
+              "<br>",
+              "-log10(",
+              metric_label,
+              "): ",
+              round(neg_log_metric, 3),
+              "<br>",
+              metric_label,
+              ": ",
+              signif(metric, 3)
+            ),
+            hoverinfo = "text",
+            customdata = ~genes,
+            name = "Upregulated",
+            legendgroup = "Significance",
+            showlegend = TRUE
+          )
+      }
 
-      if (!is.null(go_list) || !is.null(custom_vec)) {
-        # Normalize go_list structure
-        if (!is.null(go_list) && length(go_list)) {
-          for (i in seq_along(go_list)) {
-            gl <- go_list[[i]]
-            if (
-              is.null(gl$category) || is.null(gl$genes) || is.null(gl$color)
-            ) {
-              next
-            }
-
-            # Remove genes that are also in custom set to avoid duplication
-            genes_to_plot <- setdiff(
-              unique(gl$genes),
-              custom_vec %||% character()
-            )
-            if (!length(genes_to_plot)) {
-              next
-            }
-
-            sub <- dat[dat$genes %in% genes_to_plot, , drop = FALSE]
-            if (!nrow(sub)) {
-              next
-            }
-
-            p <- p %>%
-              add_markers(
-                data = sub,
-                x = ~log2FC,
-                y = ~neg_log_pval,
-                customdata = ~genes,
-                text = ~ paste(
-                  "Gene:",
-                  genes,
-                  "<br>",
-                  "GO:",
-                  gl$category,
-                  "<br>",
-                  "log2(FC):",
-                  round(log2FC, 3),
-                  "<br>",
-                  "p-value:",
-                  signif(pval, 3)
-                ),
-                hoverinfo = "text",
-                marker = list(
-                  color = gl$color,
-                  size = 10,
-                  line = list(width = 1, color = "black"),
-                  symbol = "circle"
-                ),
-                name = gl$category,
-                legendgroup = "GO",
-                showlegend = TRUE
-              )
+      # GO annotations (list of lists)
+      go_list <- go_annotations()
+      if (!is.null(go_list) && length(go_list)) {
+        for (gl in go_list) {
+          if (is.null(gl$category) || is.null(gl$genes) || is.null(gl$color)) {
+            next
           }
-        }
-
-        # Custom genes overlay (black)
-        if (!is.null(custom_vec) && length(custom_vec)) {
-          sub_custom <- dat[dat$genes %in% custom_vec, , drop = FALSE]
-          # Avoid empty sub
-          if (nrow(sub_custom)) {
-            p <- p %>%
-              add_markers(
-                data = sub_custom,
-                x = ~log2FC,
-                y = ~neg_log_pval,
-                customdata = ~genes,
-                text = ~ paste(
-                  "Gene:",
-                  genes,
-                  "<br>",
-                  "Custom selection",
-                  "<br>",
-                  "log2(FC):",
-                  round(log2FC, 3),
-                  "<br>",
-                  "p-value:",
-                  signif(pval, 3)
-                ),
-                hoverinfo = "text",
-                marker = list(
-                  color = "#000000",
-                  size = 11,
-                  line = list(width = 1.5, color = "#FFFFFF"),
-                  symbol = "diamond"
-                ),
-                name = "Custom genes",
-                legendgroup = "Custom",
-                showlegend = TRUE
-              )
+          sub_go <- dat[dat$genes %in% gl$genes, , drop = FALSE]
+          if (!nrow(sub_go)) {
+            next
           }
-        }
-      } else {
-        # Legacy single-group highlight (changes symbol/size)
-        if (any(dat$legacy_highlighted)) {
-          sub_h <- dat[dat$legacy_highlighted, , drop = FALSE]
-          p <- p %>%
+          p <- p |>
             add_markers(
-              data = sub_h,
+              data = sub_go,
               x = ~log2FC,
-              y = ~neg_log_pval,
-              customdata = ~genes,
-              text = ~ paste(
-                "Gene:",
+              y = ~neg_log_metric,
+              marker = list(
+                color = gl$color,
+                size = 9,
+                line = list(color = "#222222", width = 0.7),
+                symbol = "circle"
+              ),
+              text = ~ paste0(
+                "<b>",
                 genes,
+                "</b><br>",
+                "GO: ",
+                gl$category,
                 "<br>",
-                "Highlighted set",
-                "<br>",
-                "log2(FC):",
+                "log2(FC): ",
                 round(log2FC, 3),
                 "<br>",
-                "p-value:",
-                signif(pval, 3)
+                "-log10(",
+                metric_label,
+                "): ",
+                round(neg_log_metric, 3),
+                "<br>",
+                metric_label,
+                ": ",
+                signif(metric, 3)
               ),
               hoverinfo = "text",
-              marker = list(
-                color = "rgba(0,0,0,0)",
-                size = 12,
-                line = list(width = 2, color = "#333333"),
-                symbol = "diamond"
-              ),
-              name = if (
-                !is.null(highlight_info()) && !is.null(highlight_info()$name)
-              ) {
-                highlight_info()$name
-              } else {
-                "Highlighted genes"
-              },
-              legendgroup = "legacy",
+              customdata = ~genes,
+              name = gl$category,
+              legendgroup = "GO",
               showlegend = TRUE
             )
         }
       }
 
-      # Layout & cutoffs
-      p <- p %>%
+      # Custom genes (with labels)
+      custom_vec <- custom_highlights()
+      if (!is.null(custom_vec) && length(custom_vec)) {
+        sub_c <- dat[dat$genes %in% custom_vec, , drop = FALSE]
+        if (nrow(sub_c)) {
+          # Limit labels for readability
+          max_labels <- max_custom_labels()
+          if (nrow(sub_c) > max_labels) {
+            sub_label <- sub_c |>
+              arrange(desc(neg_log_metric)) |>
+              slice_head(n = max_labels)
+          } else {
+            sub_label <- sub_c
+          }
+          p <- p |>
+            add_markers(
+              data = sub_c,
+              x = ~log2FC,
+              y = ~neg_log_metric,
+              marker = list(
+                color = "#000000",
+                size = 11,
+                symbol = "diamond",
+                line = list(color = "#FFFFFF", width = 1.4)
+              ),
+              text = ~ paste0(
+                "<b>",
+                genes,
+                "</b><br>",
+                "Custom selection<br>",
+                "log2(FC): ",
+                round(log2FC, 3),
+                "<br>",
+                "-log10(",
+                metric_label,
+                "): ",
+                round(neg_log_metric, 3),
+                "<br>",
+                metric_label,
+                ": ",
+                signif(metric, 3)
+              ),
+              hoverinfo = "text",
+              customdata = ~genes,
+              name = "Custom genes",
+              legendgroup = "Custom",
+              showlegend = TRUE
+            ) |>
+            # Text labels trace
+            add_markers(
+              data = sub_label,
+              x = ~log2FC,
+              y = ~neg_log_metric,
+              mode = "text",
+              text = ~genes,
+              textposition = "top center",
+              textfont = list(color = "#000000", size = label_font_size()),
+              hoverinfo = "none",
+              showlegend = FALSE
+            )
+        }
+      }
+
+      # Ranges and aspect
+      x_rng <- range(dat$log2FC, na.rm = TRUE)
+      y_rng <- range(dat$neg_log_metric, na.rm = TRUE)
+      pad_x <- diff(x_rng) * 0.05
+      pad_y <- diff(y_rng) * 0.05
+      if (!is.finite(pad_x)) {
+        pad_x <- 1
+      }
+      if (!is.finite(pad_y)) {
+        pad_y <- 1
+      }
+
+      # Threshold lines
+      fc_line <- log2(fc_cutoff())
+      q_line_y <- -log10(q_cutoff())
+
+      p <- p |>
         layout(
           title = list(text = title(), font = list(size = 18)),
           xaxis = list(
             title = "log2(Fold Change)",
+            range = c(x_rng[1] - pad_x, x_rng[2] + pad_x),
             zeroline = TRUE,
-            zerolinecolor = toRGB("black", 0.4),
-            zerolinewidth = 1
+            zerolinecolor = "rgba(0,0,0,0.25)"
           ),
-          yaxis = list(title = "-log10(p-value)"),
-          legend = list(orientation = "h", y = -0.2),
+          yaxis = list(
+            title = "-log10(q-value)",
+            range = c(max(0, y_rng[1] - pad_y), y_rng[2] + pad_y),
+            scaleanchor = "x",
+            scaleratio = 1
+          ),
+          legend = list(orientation = "h", y = -0.25),
           shapes = list(
             list(
               type = "line",
-              x0 = log2(fc_cutoff()),
-              x1 = log2(fc_cutoff()),
+              x0 = fc_line,
+              x1 = fc_line,
               y0 = 0,
-              y1 = max(dat$neg_log_pval, na.rm = TRUE),
-              line = list(color = "grey", dash = "dash")
+              y1 = y_rng[2] + pad_y,
+              line = list(color = "gray50", dash = "dash", width = 1)
             ),
             list(
               type = "line",
-              x0 = -log2(fc_cutoff()),
-              x1 = -log2(fc_cutoff()),
+              x0 = -fc_line,
+              x1 = -fc_line,
               y0 = 0,
-              y1 = max(dat$neg_log_pval, na.rm = TRUE),
-              line = list(color = "grey", dash = "dash")
+              y1 = y_rng[2] + pad_y,
+              line = list(color = "gray50", dash = "dash", width = 1)
             ),
             list(
               type = "line",
-              x0 = min(dat$log2FC, na.rm = TRUE),
-              x1 = max(dat$log2FC, na.rm = TRUE),
-              y0 = -log10(pval_cutoff()),
-              y1 = -log10(pval_cutoff()),
-              line = list(color = "grey", dash = "dash")
+              x0 = x_rng[1] - pad_x,
+              x1 = x_rng[2] + pad_x,
+              y0 = q_line_y,
+              y1 = q_line_y,
+              line = list(color = "gray50", dash = "dash", width = 1)
             )
           )
-        ) %>%
+        ) |>
         config(
-          toImageButtonOptions = list(
-            format = "png",
-            filename = "volcano_plot",
-            width = 1200,
-            height = 800
-          ),
           displaylogo = FALSE,
           modeBarButtonsToRemove = c(
-            "sendDataToCloud",
-            "editInChartStudio",
             "lasso2d",
+            "select2d",
+            "zoomIn2d",
+            "zoomOut2d",
             "autoScale2d"
+          ),
+          toImageButtonOptions = list(
+            format = "png",
+            filename = paste0("volcano_", timepoint),
+            width = 1400,
+            height = 1400
           )
         )
-
-      # Legacy annotation info (kept for backward compatibility)
-      if (
-        is.null(go_highlights()) &&
-          is.null(custom_highlights()) &&
-          !is.null(highlight_info()) &&
-          length(legacy_highlight_vector()) > 0
-      ) {
-        x_pos <- quantile(dat$log2FC, 0.85, na.rm = TRUE)
-        y_pos <- quantile(dat$neg_log_pval, 0.85, na.rm = TRUE)
-        info <- highlight_info()
-        annotation_text <- paste0(
-          "Highlighted: ",
-          if ("name" %in% names(info)) info$name else "",
-          if ("id" %in% names(info)) paste0(" (", info$id, ")") else "",
-          "<br>",
-          length(legacy_highlight_vector()),
-          " genes"
-        )
-        p <- p %>%
-          add_annotations(
-            x = x_pos,
-            y = y_pos,
-            text = annotation_text,
-            showarrow = FALSE,
-            bgcolor = "rgba(255, 255, 255, 0.8)",
-            bordercolor = "rgba(0, 0, 0, 0.2)",
-            borderwidth = 1,
-            font = list(size = 12)
-          )
-      }
 
       p
     })
 
-    # Click selection returns gene symbol from customdata
     selected_genes <- reactive({
       ev <- event_data("plotly_click", source = "volcano")
-      if (is.null(ev)) {
+      if (is.null(ev) || is.null(ev$customdata)) {
         return(NULL)
       }
-      # ev$customdata is a list; convert first element or vector
-      if (!is.null(ev$customdata)) {
-        return(ev$customdata)
-      }
-      NULL
+      ev$customdata
     })
 
-    return(list(
-      selected_genes = selected_genes,
-      rendered_plot = reactive(output$volcano_plot)
-    ))
+    return(list(selected_genes = selected_genes))
   })
 }
