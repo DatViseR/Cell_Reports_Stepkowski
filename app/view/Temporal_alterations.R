@@ -225,7 +225,8 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_STRESS_I",
       dataset = ds_STRESS_I,
-      go_highlights = go_annotations,
+      timepoint = "STRESS_I",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("STRESS_I Volcano")
     )
@@ -233,8 +234,8 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_STRESS_II",
       dataset = ds_STRESS_II,
-      go_highlights = go_annotations,
-
+      timepoint = "STRESS_II",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("STRESS_II Volcano")
     )
@@ -242,7 +243,8 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_RECOVERY_I",
       dataset = ds_RECOVERY_I,
-      go_highlights = go_annotations,
+      timepoint = "RECOVERY_I",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("RECOVERY_I Volcano")
     )
@@ -250,7 +252,8 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_RECOVERY_II",
       dataset = ds_RECOVERY_II,
-      go_highlights = go_annotations,
+      timepoint = "RECOVERY_II",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("RECOVERY_II Volcano")
     )
