@@ -197,34 +197,13 @@ server <- function(id, GO = NULL, datasets = NULL) {
       out
     })
 
-    # Helper to subset by time point
-    subset_timepoint <- function(tp) {
-      reactive({
-        if (is.null(datasets) || is.null(datasets$I)) {
-          return(NULL)
-        }
-        df <- datasets$I
-        if (!"Time_point" %in% names(df)) {
-          return(NULL)
-        }
-        sub <- df[df$Time_point == tp, , drop = FALSE]
-        if (!all(c("genes", "FC", "pval") %in% names(sub))) {
-          return(NULL)
-        }
-        sub <- sub[!is.na(sub$FC) & !is.na(sub$pval), ]
-        sub
-      })
-    }
-
-    ds_STRESS_I <- subset_timepoint("STRESS_I")
-    ds_STRESS_II <- subset_timepoint("STRESS_II")
-    ds_RECOVERY_I <- subset_timepoint("RECOVERY_I")
-    ds_RECOVERY_II <- subset_timepoint("RECOVERY_II")
-
-    # Volcano modules with new separate highlight arguments
+    # Volcano modules with timepoint-based filtering
     volcano$server(
       "volcano_STRESS_I",
-      dataset = ds_STRESS_I,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
       timepoint = "STRESS_I",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
@@ -233,7 +212,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     volcano$server(
       "volcano_STRESS_II",
-      dataset = ds_STRESS_II,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
       timepoint = "STRESS_II",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
@@ -242,7 +224,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     volcano$server(
       "volcano_RECOVERY_I",
-      dataset = ds_RECOVERY_I,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
       timepoint = "RECOVERY_I",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
@@ -251,7 +236,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     volcano$server(
       "volcano_RECOVERY_II",
-      dataset = ds_RECOVERY_II,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
       timepoint = "RECOVERY_II",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
