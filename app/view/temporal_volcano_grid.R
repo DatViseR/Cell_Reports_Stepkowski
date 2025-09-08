@@ -85,99 +85,157 @@ server <- function(id,
     stress_i_data <- reactive({
       req(dataset_1())
       
-      data <- dataset_1()
-      
-      # Filter for STRESS_I time point and prepare columns
-      stress_data <- data %>%
-        filter(Time_point == "STRESS_I") %>%
-        select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
-        rename(
-          genes = Gene_single,
-          pval = p_value,
-          log2FC = `log2(Fold)`,
-          qvalue = q_value
-        ) %>%
-        # Convert p_value from -log10 back to regular p-value
-        mutate(
-          # p_value column contains -log10(p-value), convert back to p-value
-          pval = 10^(-pval),
-          # Create FC column for volcano module compatibility 
-          FC = 2^log2FC
-        )
-      
-      return(stress_data)
+      tryCatch({
+        data <- dataset_1()
+        
+        # Check if required columns exist
+        required_cols <- c("Gene_single", "Time_point", "p_value", "log2(Fold)", "q_value")
+        missing_cols <- required_cols[!required_cols %in% names(data)]
+        
+        if (length(missing_cols) > 0) {
+          cat("Warning: Missing columns in dataset:", paste(missing_cols, collapse = ", "), "\n")
+          return(NULL)
+        }
+        
+        # Filter for STRESS_I time point and prepare columns
+        stress_data <- data %>%
+          filter(Time_point == "STRESS_I") %>%
+          select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
+          rename(
+            genes = Gene_single,
+            pval = p_value,
+            log2FC = `log2(Fold)`,
+            qvalue = q_value
+          ) %>%
+          # Convert p_value from -log10 back to regular p-value
+          mutate(
+            # p_value column contains -log10(p-value), convert back to p-value
+            pval = 10^(-pval),
+            # Create FC column for volcano module compatibility 
+            FC = 2^log2FC
+          ) %>%
+          # Remove rows with missing data
+          filter(!is.na(genes) & !is.na(pval) & !is.na(FC))
+        
+        if (nrow(stress_data) == 0) {
+          cat("Warning: No data found for STRESS_I time point\n")
+          return(NULL)
+        }
+        
+        cat("STRESS_I data prepared:", nrow(stress_data), "genes\n")
+        return(stress_data)
+      }, error = function(e) {
+        cat("Error preparing STRESS_I data:", e$message, "\n")
+        return(NULL)
+      })
     })
     
     stress_ii_data <- reactive({
       req(dataset_1())
       
-      data <- dataset_1()
-      
-      stress_data <- data %>%
-        filter(Time_point == "STRESS_II") %>%
-        select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
-        rename(
-          genes = Gene_single,
-          pval = p_value,
-          log2FC = `log2(Fold)`,
-          qvalue = q_value
-        ) %>%
-        mutate(
-          # p_value column contains -log10(p-value), convert back to p-value
-          pval = 10^(-pval),
-          # Create FC column for volcano module compatibility 
-          FC = 2^log2FC
-        )
-      
-      return(stress_data)
+      tryCatch({
+        data <- dataset_1()
+        
+        stress_data <- data %>%
+          filter(Time_point == "STRESS_II") %>%
+          select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
+          rename(
+            genes = Gene_single,
+            pval = p_value,
+            log2FC = `log2(Fold)`,
+            qvalue = q_value
+          ) %>%
+          mutate(
+            # p_value column contains -log10(p-value), convert back to p-value
+            pval = 10^(-pval),
+            # Create FC column for volcano module compatibility 
+            FC = 2^log2FC
+          ) %>%
+          filter(!is.na(genes) & !is.na(pval) & !is.na(FC))
+        
+        if (nrow(stress_data) == 0) {
+          cat("Warning: No data found for STRESS_II time point\n")
+          return(NULL)
+        }
+        
+        cat("STRESS_II data prepared:", nrow(stress_data), "genes\n")
+        return(stress_data)
+      }, error = function(e) {
+        cat("Error preparing STRESS_II data:", e$message, "\n")
+        return(NULL)
+      })
     })
     
     recovery_i_data <- reactive({
       req(dataset_1())
       
-      data <- dataset_1()
-      
-      recovery_data <- data %>%
-        filter(Time_point == "RECOVERY_I") %>%
-        select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
-        rename(
-          genes = Gene_single,
-          pval = p_value,
-          log2FC = `log2(Fold)`,
-          qvalue = q_value
-        ) %>%
-        mutate(
-          # p_value column contains -log10(p-value), convert back to p-value
-          pval = 10^(-pval),
-          # Create FC column for volcano module compatibility 
-          FC = 2^log2FC
-        )
-      
-      return(recovery_data)
+      tryCatch({
+        data <- dataset_1()
+        
+        recovery_data <- data %>%
+          filter(Time_point == "RECOVERY_I") %>%
+          select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
+          rename(
+            genes = Gene_single,
+            pval = p_value,
+            log2FC = `log2(Fold)`,
+            qvalue = q_value
+          ) %>%
+          mutate(
+            # p_value column contains -log10(p-value), convert back to p-value
+            pval = 10^(-pval),
+            # Create FC column for volcano module compatibility 
+            FC = 2^log2FC
+          ) %>%
+          filter(!is.na(genes) & !is.na(pval) & !is.na(FC))
+        
+        if (nrow(recovery_data) == 0) {
+          cat("Warning: No data found for RECOVERY_I time point\n")
+          return(NULL)
+        }
+        
+        cat("RECOVERY_I data prepared:", nrow(recovery_data), "genes\n")
+        return(recovery_data)
+      }, error = function(e) {
+        cat("Error preparing RECOVERY_I data:", e$message, "\n")
+        return(NULL)
+      })
     })
     
     recovery_ii_data <- reactive({
       req(dataset_1())
       
-      data <- dataset_1()
-      
-      recovery_data <- data %>%
-        filter(Time_point == "RECOVERY_II") %>%
-        select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
-        rename(
-          genes = Gene_single,
-          pval = p_value,
-          log2FC = `log2(Fold)`,
-          qvalue = q_value
-        ) %>%
-        mutate(
-          # p_value column contains -log10(p-value), convert back to p-value
-          pval = 10^(-pval),
-          # Create FC column for volcano module compatibility 
-          FC = 2^log2FC
-        )
-      
-      return(recovery_data)
+      tryCatch({
+        data <- dataset_1()
+        
+        recovery_data <- data %>%
+          filter(Time_point == "RECOVERY_II") %>%
+          select(Gene_single, p_value, `log2(Fold)`, q_value) %>%
+          rename(
+            genes = Gene_single,
+            pval = p_value,
+            log2FC = `log2(Fold)`,
+            qvalue = q_value
+          ) %>%
+          mutate(
+            # p_value column contains -log10(p-value), convert back to p-value
+            pval = 10^(-pval),
+            # Create FC column for volcano module compatibility 
+            FC = 2^log2FC
+          ) %>%
+          filter(!is.na(genes) & !is.na(pval) & !is.na(FC))
+        
+        if (nrow(recovery_data) == 0) {
+          cat("Warning: No data found for RECOVERY_II time point\n")
+          return(NULL)
+        }
+        
+        cat("RECOVERY_II data prepared:", nrow(recovery_data), "genes\n")
+        return(recovery_data)
+      }, error = function(e) {
+        cat("Error preparing RECOVERY_II data:", e$message, "\n")
+        return(NULL)
+      })
     })
     
     # Combine highlight genes from GO and custom annotations

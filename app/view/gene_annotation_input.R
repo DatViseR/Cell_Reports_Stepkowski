@@ -113,8 +113,11 @@ server <- function(id) {
       tryCatch({
         if (file_ext %in% c("txt", "tsv")) {
           # Read as plain text file
-          genes <- readLines(file_path)
+          genes <- readLines(file_path, warn = FALSE)
           # Remove empty lines and trim whitespace
+          genes <- trimws(genes[genes != ""])
+          # Handle comma-separated values in text files
+          genes <- unlist(strsplit(genes, "[,;\\t]+"))
           genes <- trimws(genes[genes != ""])
         } else if (file_ext == "csv") {
           # Read as CSV and take first column
@@ -122,9 +125,16 @@ server <- function(id) {
           genes <- as.character(data[, 1])
           genes <- trimws(genes[!is.na(genes) & genes != ""])
         } else {
+          cat("Unsupported file format:", file_ext, "\n")
           return(NULL)
         }
         
+        if (length(genes) == 0) {
+          cat("No genes found in uploaded file\n")
+          return(NULL)
+        }
+        
+        cat("Loaded", length(genes), "genes from file\n")
         return(genes)
       }, error = function(e) {
         cat("Error reading file:", e$message, "\n")
