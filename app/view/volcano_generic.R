@@ -1,4 +1,4 @@
-# Generic Volcano module 
+# Generic Volcano module
 # - Works with different dataset structures without requiring data transformation
 # - Fixed x range:  -3 to 3
 # - Fixed y range:   0 to 2.5
@@ -57,7 +57,11 @@ server <- function(
   q_cutoff = reactive(0.05),
   title = reactive("Volcano"),
   max_custom_labels = reactive(30),
-  label_font_size = reactive(11)
+  label_font_size = reactive(11),
+  X_MIN = reactive(-3),
+  X_MAX = reactive(-3),
+  Y_MIN = reactive(0),
+  Y_MAX = reactive(2.5)
 ) {
   moduleServer(id, function(input, output, session) {
     prepared <- reactive({
@@ -66,8 +70,14 @@ server <- function(
 
       # Validate required columns exist
       validate(
-        need(log2fc_column %in% names(df), paste("Column", log2fc_column, "missing.")),
-        need(gene_column %in% names(df), paste("Column", gene_column, "missing.")),
+        need(
+          log2fc_column %in% names(df),
+          paste("Column", log2fc_column, "missing.")
+        ),
+        need(
+          gene_column %in% names(df),
+          paste("Column", gene_column, "missing.")
+        ),
         need(
           !is.null(pvalue_column) || !is.null(qvalue_column),
           "Either pvalue_column or qvalue_column must be specified."
@@ -75,12 +85,18 @@ server <- function(
       )
 
       if (!is.null(qvalue_column)) {
-        validate(need(qvalue_column %in% names(df), paste("Column", qvalue_column, "missing.")))
+        validate(need(
+          qvalue_column %in% names(df),
+          paste("Column", qvalue_column, "missing.")
+        ))
         y_col <- qvalue_column
         metric_label <- "q-value"
         using_q <- TRUE
       } else {
-        validate(need(pvalue_column %in% names(df), paste("Column", pvalue_column, "missing.")))
+        validate(need(
+          pvalue_column %in% names(df),
+          paste("Column", pvalue_column, "missing.")
+        ))
         y_col <- pvalue_column
         metric_label <- "p-value"
         using_q <- FALSE
@@ -88,9 +104,9 @@ server <- function(
 
       # Remove rows with missing critical values
       sub <- df[
-        !is.na(df[[log2fc_column]]) & 
-        !is.na(df[[y_col]]) &
-        !is.na(df[[gene_column]])
+        !is.na(df[[log2fc_column]]) &
+          !is.na(df[[y_col]]) &
+          !is.na(df[[gene_column]])
       ]
 
       if (!nrow(sub)) {

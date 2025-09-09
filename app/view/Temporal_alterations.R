@@ -36,7 +36,7 @@ box::use(
   app / view / Gene_symbols_input,
   app / view / Gene_symbols_file_input,
   app / view / volcano,
-  app / view / GO_gene_mapper # Add this import
+  app / view / GO_gene_mapper
 )
 
 #' @export

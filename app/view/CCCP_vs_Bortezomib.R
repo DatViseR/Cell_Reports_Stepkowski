@@ -15,6 +15,7 @@ box::use(
     actionButton,
     observeEvent,
     eventReactive,
+
     isolate,
     updateActionButton
   ],
@@ -107,7 +108,7 @@ ui <- function(id, GO = NULL) {
     )
   )
 }
-  
+
 #' @export
 server <- function(id, GO = NULL, datasets = NULL) {
   moduleServer(id, function(input, output, session) {
@@ -119,7 +120,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
     go_mapper <- GO_gene_mapper$server("go_mapper", GO_data = GO)
 
     # GO selection + colors
-    go_selection <- GO_selection_module$server("go_selection_cccp_bortezomib", GO = GO)
+    go_selection <- GO_selection_module$server(
+      "go_selection_cccp_bortezomib",
+      GO = GO
+    )
     go_colors <- GO_Color_picker$server(
       "go_color_picker",
       chosen_go = go_selection$chosen_go
@@ -240,35 +244,43 @@ server <- function(id, GO = NULL, datasets = NULL) {
       if (is.null(datasets) || is.null(datasets$II)) {
         return(NULL)
       }
-      
+
       df <- datasets$II
       cat("Dataset II structure - rows:", nrow(df), "\n")
       cat("Available columns:", paste(names(df), collapse = ", "), "\n")
-      
+
       return(df)
     })
 
     # Volcano modules for the two comparisons using volcano_generic
     volcano_generic$server(
       "volcano_CCCP_DMSO",
-      dataset = dataset_ii,
+      dataset = datasets$II,
       log2fc_column = "Log2FC_CCCP_DMSO",
       qvalue_column = "q_value_CCCP_DMSO",
       gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
-      title = reactive("CCCP vs. DMSO")
+      title = reactive("CCCP vs. DMSO"),
+      X_MIN = -2,
+      X_MAX = 2,
+      Y_MIN = 0,
+      Y_MAX = 6.9
     )
 
     volcano_generic$server(
       "volcano_Bortezomib_DMSO",
-      dataset = dataset_ii,
+      dataset = datasets$II,
       log2fc_column = "Log2FC_Bortezomib_DMSO",
       qvalue_column = "q_value_Bortezomib_DMSO",
       gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
-      title = reactive("Bortezomib vs. DMSO")
+      title = reactive("Bortezomib vs. DMSO"),
+      X_MIN = -2,
+      X_MAX = 2,
+      Y_MIN = 0,
+      Y_MAX = 6.9
     )
   })
 }
