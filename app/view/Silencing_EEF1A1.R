@@ -27,7 +27,6 @@ box::use(
     accordion
   ],
   utils[head],
-  dplyr[filter],
   app / view / GO_selection_module,
   app / view / GO_Color_picker,
   app / view / Gene_symbols_input,
@@ -142,15 +141,22 @@ server <- function(id, GO = NULL, datasets = NULL) {
       if (is.null(df)) {
         return(NULL)
       }
-      if (
-        !all(
-          c("comparison", "log2_fold", "q_value", "Gene names") %in% names(df)
-        )
-      ) {
-        warning(
-          "Dataset III is missing required columns: comparison, log2_fold, q_value, Gene names"
-        )
+      
+      # Dataset 3 has separate Log2FC columns for each comparison, not a single comparison column
+      expected_cols <- c("Gene names", 
+                        "Log2FC A1_Veh_SC_Veh", "T-test q-value A1_Veh_SC_Veh",
+                        "Log2FC A1_CCCP_SC_CCCP", "T-test q-value A1_CCCP_SC_CCCP", 
+                        "Log2FC SC_CCCP_SC_Veh", "T-test q-value SC_CCCP_SC_Veh",
+                        "Log2FC A1_CCCP_A1_Veh", "T-test q-value A1_CCCP_A1_Veh")
+      
+      missing <- setdiff(expected_cols, names(df))
+      if (length(missing) > 0) {
+        warning("Dataset III is missing expected columns: ", paste(missing, collapse = ", "))
       }
+      
+      cat("Dataset III structure - rows:", nrow(df), "\n")
+      cat("Available columns:", paste(names(df), collapse = ", "), "\n")
+      
       df
     })
 
@@ -170,7 +176,13 @@ server <- function(id, GO = NULL, datasets = NULL) {
     # ---- Custom gene inputs ----
     manual_genes <- Gene_symbols_input$server(
       "input_custom_genes",
-      dataset = unique(data.frame(Gene_single = datasets$III$`Gene names`)),
+      dataset = reactive({
+        df <- dataset_iii()
+        if (is.null(df)) {
+          return(data.frame(Gene_single = character()))
+        }
+        unique(data.frame(Gene_single = df$`Gene names`))
+      }),
       gene_column = "Gene_single"
     )
 
@@ -231,84 +243,124 @@ server <- function(id, GO = NULL, datasets = NULL) {
         return(list(xmin = -2, xmax = 2, ymin = 0, ymax = 5))
       }
 
-      # X limits (symmetric)
-      x_abs <- max(abs(df$log2_fold), na.rm = TRUE)
-      if (!is.finite(x_abs)) {
+      # Get all log2FC values from all four comparisons  
+      all_log2fc <- c(
+        df$`Log2FC A1_Veh_SC_Veh`,
+        df$`Log2FC A1_CCCP_SC_CCCP`,
+        df$`Log2FC SC_CCCP_SC_Veh`, 
+        df$`Log2FC A1_CCCP_A1_Veh`
+      )
+      all_log2fc <- all_log2fc[is.finite(all_log2fc)]
+
+      # X limits (symmetric around 0, using max absolute value)
+      x_abs <- max(abs(all_log2fc), na.rm = TRUE)
+      if (!is.finite(x_abs) || x_abs == 0) {
         x_abs <- 2
       }
-      # Round up to a single decimal for nicer scale
+      # Round up to single decimal for nicer scale
       x_abs <- ceiling(x_abs * 10) / 10
 
-      # Y limit: -log10(q_value)
-      y_vals <- -log10(df$q_value)
-      y_max <- max(y_vals[is.finite(y_vals)], na.rm = TRUE)
-      if (!is.finite(y_max)) {
+      # Get all q-values from all four comparisons
+      all_qvalues <- c(
+        df$`T-test q-value A1_Veh_SC_Veh`,
+        df$`T-test q-value A1_CCCP_SC_CCCP`,
+        df$`T-test q-value SC_CCCP_SC_Veh`,
+        df$`T-test q-value A1_CCCP_A1_Veh`
+      )
+      all_qvalues <- all_qvalues[is.finite(all_qvalues) & all_qvalues > 0]
+
+      # Y limit: -log10(q_value), use minimum q-value for max y
+      if (length(all_qvalues) > 0) {
+        min_qvalue <- min(all_qvalues, na.rm = TRUE)
+        y_max <- -log10(min_qvalue)
+        if (!is.finite(y_max) || y_max <= 0) {
+          y_max <- 5
+        }
+        # Add headroom  
+        y_max <- ceiling(y_max * 10) / 10 + 0.5
+      } else {
         y_max <- 5
       }
-      # Add a small headroom
-      y_max <- ceiling(y_max * 10) / 10 + 0.2
+
+      cat("Computed unified axis limits - X: [-", x_abs, ", ", x_abs, "], Y: [0, ", y_max, "]\n")
 
       list(xmin = -x_abs, xmax = x_abs, ymin = 0, ymax = y_max)
     })
 
-    # print comparison labels for debugging in the console
+    # print some debug info about the data
     observe({
       df <- dataset_iii()
       if (is.null(df)) {
         return()
       }
-      cat("Available comparisons in Dataset III:\n")
-      print(unique(df$comparison))
+      cat("Dataset III column names:\n")
+      print(names(df))
+      
+      # Show sample Log2FC values for each comparison
+      comparisons <- list(
+        "A1_Veh_SC_Veh" = "Log2FC A1_Veh_SC_Veh",
+        "A1_CCCP_SC_CCCP" = "Log2FC A1_CCCP_SC_CCCP", 
+        "SC_CCCP_SC_Veh" = "Log2FC SC_CCCP_SC_Veh",
+        "A1_CCCP_A1_Veh" = "Log2FC A1_CCCP_A1_Veh"
+      )
+      
+      for (comp_name in names(comparisons)) {
+        col_name <- comparisons[[comp_name]]
+        if (col_name %in% names(df)) {
+          vals <- df[[col_name]][is.finite(df[[col_name]])]
+          if (length(vals) > 0) {
+            cat(comp_name, "range:", range(vals, na.rm = TRUE), "\n")
+          } else {
+            cat(comp_name, ": no finite values\n")
+          }
+        } else {
+          cat(comp_name, ": column not found\n")
+        }
+      }
     })
 
-    # ---- Expected comparisons (adjust these if actual dataset uses different labels) ----
-    expected_comparisons <- c(
-      "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)",
-      "siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)",
-      "siRNA scramble(CCCP) vs. siRNA scramble (DMSO)",
-      "siRNA EEF1A1(CCCP) vs. siRNA EEF1A1(DMSO)"
-    )
-
-    present <- intersect(expected_comparisons, unique(datasets$III$comparison))
-    if (length(present) < length(expected_comparisons)) {
-      missing <- setdiff(expected_comparisons, present)
-      warning(
-        "Missing expected comparisons in dataset III: ",
-        paste(missing, collapse = "; ")
+    # ---- Define the four comparisons and their corresponding volcano modules ----
+    # Map UI IDs to column names (Dataset 3 has separate columns for each comparison)
+    comparison_configs <- list(
+      volcano_siEEF1A1_Control = list(
+        log2fc_col = "Log2FC A1_Veh_SC_Veh",
+        qvalue_col = "T-test q-value A1_Veh_SC_Veh", 
+        title = "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)"
+      ),
+      volcano_siEEF1A1_CCCP_Control_CCCP = list(
+        log2fc_col = "Log2FC A1_CCCP_SC_CCCP",
+        qvalue_col = "T-test q-value A1_CCCP_SC_CCCP",
+        title = "siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)" 
+      ),
+      volcano_Control_CCCP_Control = list(
+        log2fc_col = "Log2FC SC_CCCP_SC_Veh",
+        qvalue_col = "T-test q-value SC_CCCP_SC_Veh",
+        title = "Control+CCCP vs. Control"
+      ),
+      volcano_siEEF1A1_CCCP_siEEF1A1 = list(
+        log2fc_col = "Log2FC A1_CCCP_A1_Veh", 
+        qvalue_col = "T-test q-value A1_CCCP_A1_Veh",
+        title = "siRNA EEF1A1(CCCP) vs. siRNA EEF1A1(DMSO)"
       )
-    }
-
-    # Map UI IDs to comparison strings (order corresponds to UI layout)
-    comparison_map <- list(
-      volcano_siEEF1A1_Control = "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)",
-      volcano_siEEF1A1_CCCP_Control_CCCP = "siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)",
-      volcano_Control_CCCP_Control = "Control+CCCP vs. Control",
-      volcano_siEEF1A1_CCCP_siEEF1A1 = "siRNA EEF1A1(CCCP) vs. siRNA EEF1A1(DMSO)"
     )
 
     # ---- Instantiate volcano modules dynamically ----
-    lapply(names(comparison_map), function(id) {
-      comp_label <- comparison_map[[id]]
+    lapply(names(comparison_configs), function(id) {
+      config <- comparison_configs[[id]]
 
       volcano_generic$server(
         id = id,
-        dataset = reactive({
-          df <- dataset_iii()
-          if (is.null(df)) {
-            return(NULL)
-          }
-          df |> filter(.data$comparison == comp_label)
-        }),
-        log2fc_column = "log2_fold",
-        qvalue_column = "q_value",
+        dataset = dataset_iii, # Use the full dataset, not filtered
+        log2fc_column = config$log2fc_col,
+        qvalue_column = config$qvalue_col,
         gene_column = "Gene names",
         go_annotations = go_highlights,
         custom_highlights = custom_genes,
-        title = reactive(comp_label),
-        X_MIN = axis_limits()$xmin,
-        X_MAX = axis_limits()$xmax,
-        Y_MIN = axis_limits()$ymin,
-        Y_MAX = axis_limits()$ymax
+        title = reactive(config$title),
+        X_MIN = reactive(axis_limits()$xmin),
+        X_MAX = reactive(axis_limits()$xmax),
+        Y_MIN = reactive(axis_limits()$ymin),
+        Y_MAX = reactive(axis_limits()$ymax)
       )
     })
   })

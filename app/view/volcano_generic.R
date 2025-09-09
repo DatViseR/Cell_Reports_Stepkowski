@@ -59,7 +59,7 @@ server <- function(
   max_custom_labels = reactive(30),
   label_font_size = reactive(11),
   X_MIN = reactive(-3),
-  X_MAX = reactive(-3),
+  X_MAX = reactive(3),
   Y_MIN = reactive(0),
   Y_MAX = reactive(2.5)
 ) {
@@ -147,16 +147,16 @@ server <- function(
         )
       }
 
-      # Fixed ranges
-      X_MIN <- -3
-      X_MAX <- 3
-      Y_MIN <- 0
-      Y_MAX <- 2.5
+      # Use passed axis limits parameters
+      X_MIN_val <- if (is.reactive(X_MIN)) X_MIN() else X_MIN
+      X_MAX_val <- if (is.reactive(X_MAX)) X_MAX() else X_MAX
+      Y_MIN_val <- if (is.reactive(Y_MIN)) Y_MIN() else Y_MIN
+      Y_MAX_val <- if (is.reactive(Y_MAX)) Y_MAX() else Y_MAX
 
       fc_line <- log2(fc_cutoff())
       q_line_y <- -log10(q_cutoff())
 
-      draw_q_line <- (q_line_y >= Y_MIN && q_line_y <= Y_MAX)
+      draw_q_line <- (q_line_y >= Y_MIN_val && q_line_y <= Y_MAX_val)
 
       base_cols <- list(
         NotSig = "#C7C7C7",
@@ -384,24 +384,24 @@ server <- function(
           type = "line",
           x0 = fc_line,
           x1 = fc_line,
-          y0 = Y_MIN,
-          y1 = Y_MAX,
+          y0 = Y_MIN_val,
+          y1 = Y_MAX_val,
           line = list(color = "gray50", dash = "dash", width = 1)
         ),
         list(
           type = "line",
           x0 = -fc_line,
           x1 = -fc_line,
-          y0 = Y_MIN,
-          y1 = Y_MAX,
+          y0 = Y_MIN_val,
+          y1 = Y_MAX_val,
           line = list(color = "gray50", dash = "dash", width = 1)
         )
       )
       if (draw_q_line) {
         shapes[[length(shapes) + 1]] <- list(
           type = "line",
-          x0 = X_MIN,
-          x1 = X_MAX,
+          x0 = X_MIN_val,
+          x1 = X_MAX_val,
           y0 = q_line_y,
           y1 = q_line_y,
           line = list(color = "gray50", dash = "dash", width = 1)
@@ -419,13 +419,13 @@ server <- function(
           title = NULL,
           xaxis = list(
             title = "log2(Fold Change)",
-            range = c(X_MIN, X_MAX),
+            range = c(X_MIN_val, X_MAX_val),
             zeroline = TRUE,
             zerolinecolor = "rgba(0,0,0,0.25)"
           ),
           yaxis = list(
             title = metric_axis_label,
-            range = c(Y_MIN, Y_MAX)
+            range = c(Y_MIN_val, Y_MAX_val)
             # No scaleanchor => visually square container takes over
           ),
           legend = list(orientation = "h", y = -0.25),

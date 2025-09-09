@@ -239,7 +239,7 @@ server <- function(id, GO = NULL, datasets = NULL) {
       ignoreNULL = FALSE
     ) # Allow initial execution even with NULL input
 
-    # Dataset II reactive (no transformation needed)
+    # Dataset II reactive (no transformation needed)  
     dataset_ii <- reactive({
       if (is.null(datasets) || is.null(datasets$II)) {
         return(NULL)
@@ -252,6 +252,47 @@ server <- function(id, GO = NULL, datasets = NULL) {
       return(df)
     })
 
+    # Compute dynamic axis limits based on data
+    axis_limits <- reactive({
+      df <- dataset_ii()
+      if (is.null(df)) {
+        return(list(xmin = -2, xmax = 2, ymin = 0, ymax = 5))
+      }
+      
+      # Get all log2FC values from both comparisons
+      all_log2fc <- c(df$Log2FC_CCCP_DMSO, df$Log2FC_Bortezomib_DMSO)
+      all_log2fc <- all_log2fc[is.finite(all_log2fc)]
+      
+      # X limits (symmetric around 0, using max absolute value)
+      x_abs <- max(abs(all_log2fc), na.rm = TRUE)
+      if (!is.finite(x_abs) || x_abs == 0) {
+        x_abs <- 2
+      }
+      # Round up to single decimal for nicer scale
+      x_abs <- ceiling(x_abs * 10) / 10
+      
+      # Get all q-values from both comparisons  
+      all_qvalues <- c(df$`q-value_CCCP_DMSO`, df$`q-value_Bortezomib_DMSO`)
+      all_qvalues <- all_qvalues[is.finite(all_qvalues) & all_qvalues > 0]
+      
+      # Y limit: -log10(q_value), use minimum q-value for max y
+      if (length(all_qvalues) > 0) {
+        min_qvalue <- min(all_qvalues, na.rm = TRUE)
+        y_max <- -log10(min_qvalue)
+        if (!is.finite(y_max) || y_max <= 0) {
+          y_max <- 5
+        }
+        # Add headroom
+        y_max <- ceiling(y_max * 10) / 10 + 0.5
+      } else {
+        y_max <- 5
+      }
+      
+      cat("Computed axis limits - X: [-", x_abs, ", ", x_abs, "], Y: [0, ", y_max, "]\n")
+      
+      list(xmin = -x_abs, xmax = x_abs, ymin = 0, ymax = y_max)
+    })
+
     # Volcano modules for the two comparisons using volcano_generic
     volcano_generic$server(
       "volcano_CCCP_DMSO",
@@ -262,15 +303,15 @@ server <- function(id, GO = NULL, datasets = NULL) {
         datasets$II
       }),
       log2fc_column = "Log2FC_CCCP_DMSO",
-      qvalue_column = "q_value_CCCP_DMSO",
+      qvalue_column = "q-value_CCCP_DMSO",
       gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("CCCP vs. DMSO"),
-      X_MIN = -2,
-      X_MAX = 2,
-      Y_MIN = 0,
-      Y_MAX = 6.9
+      X_MIN = reactive(axis_limits()$xmin),
+      X_MAX = reactive(axis_limits()$xmax),
+      Y_MIN = reactive(axis_limits()$ymin),
+      Y_MAX = reactive(axis_limits()$ymax)
     )
 
     volcano_generic$server(
@@ -282,15 +323,15 @@ server <- function(id, GO = NULL, datasets = NULL) {
         datasets$II
       }),
       log2fc_column = "Log2FC_Bortezomib_DMSO",
-      qvalue_column = "q_value_Bortezomib_DMSO",
+      qvalue_column = "q-value_Bortezomib_DMSO",
       gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("Bortezomib vs. DMSO"),
-      X_MIN = -2,
-      X_MAX = 2,
-      Y_MIN = 0,
-      Y_MAX = 6.9
+      X_MIN = reactive(axis_limits()$xmin),
+      X_MAX = reactive(axis_limits()$xmax),
+      Y_MIN = reactive(axis_limits()$ymin),
+      Y_MAX = reactive(axis_limits()$ymax)
     )
   })
 }
