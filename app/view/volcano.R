@@ -254,15 +254,26 @@ server <- function(
 
       # GO annotations (list of lists)
       go_list <- go_annotations()
+      cat("Volcano plot - GO annotations received:", 
+          if(is.null(go_list)) "NULL" else paste(length(go_list), "groups"), "\n")
+      
       if (!is.null(go_list) && length(go_list)) {
-        for (gl in go_list) {
+        for (i in seq_along(go_list)) {
+          gl <- go_list[[i]]
+          cat("GO group", i, ":", gl$category, "with", length(gl$genes), "genes\n")
+          
           if (is.null(gl$category) || is.null(gl$genes) || is.null(gl$color)) {
+            cat("Skipping GO group", i, "- missing data\n")
             next
           }
+          
           sub_go <- dat[dat$genes %in% gl$genes, , drop = FALSE]
+          cat("Found", nrow(sub_go), "matching genes in volcano data for", gl$category, "\n")
+          
           if (!nrow(sub_go)) {
             next
           }
+          
           p <- p |>
             add_markers(
               data = sub_go,
