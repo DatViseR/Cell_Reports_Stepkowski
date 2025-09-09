@@ -455,13 +455,13 @@ server <- function(
           title = list(text = title(), font = list(size = 18)),
           xaxis = list(
             title = "log2(Fold Change)",
-            range = c(x_rng[1] - pad_x, x_rng[2] + pad_x),
+            range = c(-3, 3),
             zeroline = TRUE,
             zerolinecolor = "rgba(0,0,0,0.25)"
           ),
           yaxis = list(
             title = "-log10(q-value)",
-            range = c(max(0, y_rng[1] - pad_y), y_rng[2] + pad_y),
+            range = c(0, 2.5),
             scaleanchor = "x",
             scaleratio = 1
           ),
