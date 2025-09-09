@@ -37,6 +37,7 @@ server <- function(id, GO_data) {
           go_df <- GO_reactive()
 
           if (is.null(go_df) || nrow(go_df) == 0) {
+            cat("GO_gene_mapper: No GO data available\n")
             return(character(0))
           }
 
@@ -51,16 +52,16 @@ server <- function(id, GO_data) {
 
           # Remove any NA or empty values
           genes <- genes[!is.na(genes) & genes != ""]
+          
+          cat("GO_gene_mapper: Found", length(genes), "genes for term:", go_term, "\n")
+          if (length(genes) > 0) {
+            cat("GO_gene_mapper: Sample genes:", paste(head(genes, 5), collapse = ", "), "\n")
+          }
 
           return(genes)
         },
         error = function(e) {
-          warning(paste(
-            "Error in get_genes_for_go for term",
-            go_term,
-            ":",
-            e$message
-          ))
+          cat("GO_gene_mapper: Error for term", go_term, ":", e$message, "\n")
           return(character(0))
         }
       )

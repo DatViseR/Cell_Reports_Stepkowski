@@ -28,6 +28,7 @@ box::use(
   plotly[
     plot_ly,
     add_markers,
+    add_text,
     layout,
     config,
     event_data
@@ -253,15 +254,41 @@ server <- function(
 
       # GO annotations (list of lists)
       go_list <- go_annotations()
+      cat("Volcano plot - GO annotations received:", 
+          if(is.null(go_list)) "NULL" else paste(length(go_list), "groups"), "\n")
+      
       if (!is.null(go_list) && length(go_list)) {
-        for (gl in go_list) {
+        # Debug: show what genes are available in this volcano data
+        available_genes <- unique(dat$genes)
+        cat("Volcano plot - Available genes in dataset:", length(available_genes), "\n")
+        cat("Volcano plot - Sample available genes:", paste(head(available_genes, 10), collapse = ", "), "\n")
+        
+        for (i in seq_along(go_list)) {
+          gl <- go_list[[i]]
+          cat("GO group", i, ":", gl$category, "with", length(gl$genes), "genes\n")
+          
           if (is.null(gl$category) || is.null(gl$genes) || is.null(gl$color)) {
+            cat("Skipping GO group", i, "- missing data\n")
             next
           }
+          
+          # Debug: check gene name matching
+          matching_genes <- intersect(gl$genes, available_genes)
+          cat("GO group", i, "- genes that match volcano data:", length(matching_genes), "\n")
+          if (length(matching_genes) > 0) {
+            cat("Sample matching genes:", paste(head(matching_genes, 5), collapse = ", "), "\n")
+          } else {
+            cat("NO MATCHING GENES - GO genes:", paste(head(gl$genes, 5), collapse = ", "), "\n")
+            cat("Available genes sample:", paste(head(available_genes, 5), collapse = ", "), "\n")
+          }
+          
           sub_go <- dat[dat$genes %in% gl$genes, , drop = FALSE]
+          cat("Found", nrow(sub_go), "matching genes in volcano data for", gl$category, "\n")
+          
           if (!nrow(sub_go)) {
             next
           }
+          
           p <- p |>
             add_markers(
               data = sub_go,
@@ -349,12 +376,11 @@ server <- function(
               legendgroup = "Custom",
               showlegend = TRUE
             ) |>
-            # Text labels trace
-            add_markers(
+            # Text labels trace using add_text instead of add_markers
+            plotly::add_text(
               data = sub_label,
               x = ~log2FC,
               y = ~neg_log_metric,
-              mode = "text",
               text = ~genes,
               textposition = "top center",
               textfont = list(color = "#000000", size = label_font_size()),

@@ -13,7 +13,12 @@ box::use(
     tags,
     observe,
     renderPlot,
-    reactive
+    reactive,
+    actionButton,
+    observeEvent,
+    eventReactive,
+    isolate,
+    updateActionButton
   ],
   bslib[
     card,
@@ -46,6 +51,16 @@ ui <- function(id, GO = NULL) {
         GO_Color_picker$ui(ns("go_color_picker")),
         Gene_symbols_input$ui(ns("input_custom_genes")),
         Gene_symbols_file_input$ui(ns("input_custom_genes_file"))
+      ),
+      br(),
+      div(
+        style = "margin-top: 20px; text-align: center;",
+        shiny::actionButton(
+          ns("draw_plots"),
+          "Draw volcano plots",
+          class = "btn-primary",
+          style = "width: 80%; font-weight: bold;"
+        )
       )
     ),
     div(
@@ -160,17 +175,40 @@ server <- function(id, GO = NULL, datasets = NULL) {
       max_genes = 5000
     )
 
-    custom_genes <- reactive({
-      unique(c(manual_genes(), file_genes()))
+    custom_genes <- eventReactive(input$draw_plots, {
+      manual <- isolate(manual_genes())
+      file <- isolate(file_genes())
+      result <- unique(c(manual, file))
+      cat("Action button clicked - processing custom genes: ", length(result), "genes\n")
+      if (length(result) > 0) {
+        cat("Sample custom genes:", paste(head(result, 5), collapse = ", "), "\n")
+      }
+      result
+    }, ignoreNULL = FALSE)
+
+    # Update button text when button is clicked
+    observeEvent(input$draw_plots, {
+      updateActionButton(
+        session,
+        "draw_plots",
+        label = "Redraw volcano plots"
+      )
     })
 
     # Build GO highlight list: list of lists(category, genes, color)
-    go_highlights <- reactive({
-      sel <- go_selection$chosen_go()
+    # Use eventReactive to only update when button is clicked
+    go_highlights <- eventReactive(input$draw_plots, {
+      cat("Action button clicked - processing GO highlights\n")
+      sel <- isolate(go_selection$chosen_go())
       if (!length(sel)) {
+        cat("No GO categories selected\n")
         return(NULL)
       }
-      cols <- go_colors$chosen_colors()
+      
+      cols <- isolate(go_colors$go_colors())
+      cat("Selected GO categories:", paste(sel, collapse = ", "), "\n")
+      cat("Color assignments:", if(is.null(cols)) "NULL" else length(cols), "\n")
+      
       out <- lapply(sel, function(go_cat) {
         # Use the GO mapper to get genes for this category
         genes <- unique(go_mapper$get_genes_for_go(go_cat))
@@ -179,6 +217,10 @@ server <- function(id, GO = NULL, datasets = NULL) {
           return(NULL)
         }
         cat("Found", length(genes), "genes for GO category:", go_cat, "\n")
+        
+        # Debug: print first few genes
+        cat("Sample genes:", paste(head(genes, 5), collapse = ", "), "\n")
+        
         list(
           category = go_cat,
           genes = genes,
@@ -192,65 +234,58 @@ server <- function(id, GO = NULL, datasets = NULL) {
       # Remove NULLs
       out <- Filter(Negate(is.null), out)
       if (!length(out)) {
+        cat("No valid GO highlights created\n")
         return(NULL)
       }
+      cat("Created", length(out), "GO highlight groups\n")
       out
-    })
+    }, ignoreNULL = FALSE) # Allow initial execution even with NULL input
 
-    # Helper to subset by time point
-    subset_timepoint <- function(tp) {
-      reactive({
-        if (is.null(datasets) || is.null(datasets$I)) {
-          return(NULL)
-        }
-        df <- datasets$I
-        if (!"Time_point" %in% names(df)) {
-          return(NULL)
-        }
-        sub <- df[df$Time_point == tp, , drop = FALSE]
-        if (!all(c("genes", "FC", "pval") %in% names(sub))) {
-          return(NULL)
-        }
-        sub <- sub[!is.na(sub$FC) & !is.na(sub$pval), ]
-        sub
-      })
-    }
-
-    ds_STRESS_I <- subset_timepoint("STRESS_I")
-    ds_STRESS_II <- subset_timepoint("STRESS_II")
-    ds_RECOVERY_I <- subset_timepoint("RECOVERY_I")
-    ds_RECOVERY_II <- subset_timepoint("RECOVERY_II")
-
-    # Volcano modules with new separate highlight arguments
+    # Volcano modules with timepoint-based filtering
     volcano$server(
       "volcano_STRESS_I",
-      dataset = ds_STRESS_I,
-      go_highlights = go_annotations,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
+      timepoint = "STRESS_I",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("STRESS_I Volcano")
     )
 
     volcano$server(
       "volcano_STRESS_II",
-      dataset = ds_STRESS_II,
-      go_highlights = go_annotations,
-
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
+      timepoint = "STRESS_II",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("STRESS_II Volcano")
     )
 
     volcano$server(
       "volcano_RECOVERY_I",
-      dataset = ds_RECOVERY_I,
-      go_highlights = go_annotations,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
+      timepoint = "RECOVERY_I",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("RECOVERY_I Volcano")
     )
 
     volcano$server(
       "volcano_RECOVERY_II",
-      dataset = ds_RECOVERY_II,
-      go_highlights = go_annotations,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        datasets$I
+      }),
+      timepoint = "RECOVERY_II",
+      go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("RECOVERY_II Volcano")
     )
