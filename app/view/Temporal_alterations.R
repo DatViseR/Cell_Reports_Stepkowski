@@ -67,51 +67,56 @@ ui <- function(id, GO = NULL) {
     ),
     div(
       h3(
-        "Temporal Gene Expression Alterations",
+        "Temporal nascent proteome alterations upon mitchondrial stress",
         style = "color: #0062cc; margin-bottom: 20px;"
       ),
       card(
         card_header(
-          h4("Differential Expression Across Time Points", style = "margin: 0;")
+          h4(
+            "Interactive volcano plots for stress and recovery time points:",
+            style = "margin: 0;"
+          )
         ),
         card_body(
-          p("Interactive volcano plots for each time point / condition:"),
           br(),
           fluidRow(
             column(
               width = 6,
-              volcano$ui(ns("volcano_STRESS_I"), height = "300px"),
+              # height managed internally
               div(
-                tags$b("STRESS_I"),
-                style = "text-align: center; margin-top: 5px;"
-              )
+                tags$b("STRESS I"),
+                style = "text-align: center; margin-top: 5px; color: red;"
+              ),
+              volcano$ui(ns("volcano_STRESS_I"))
             ),
             column(
               width = 6,
-              volcano$ui(ns("volcano_STRESS_II"), height = "300px"),
+
               div(
-                tags$b("STRESS_II"),
-                style = "text-align: center; margin-top: 5px;"
-              )
-            )
+                tags$b("STRESS II"),
+                style = "text-align: center; margin-top: 5px; color: #960000;"
+              ),
+              volcano$ui(ns("volcano_STRESS_II"))
+            ),
           ),
           br(),
           fluidRow(
             column(
               width = 6,
-              volcano$ui(ns("volcano_RECOVERY_I"), height = "300px"),
               div(
-                tags$b("RECOVERY_I"),
-                style = "text-align: center; margin-top: 5px;"
-              )
+                tags$b("RECOVERY I"),
+                style = "text-align: center; margin-top: 5px; color: green;"
+              ),
+              volcano$ui(ns("volcano_RECOVERY_I"))
             ),
             column(
               width = 6,
-              volcano$ui(ns("volcano_RECOVERY_II"), height = "300px"),
+
               div(
-                tags$b("RECOVERY_II"),
-                style = "text-align: center; margin-top: 5px;"
-              )
+                tags$b("RECOVERY II"),
+                style = "text-align: center; margin-top: 5px; color: #2204cfff;"
+              ),
+              volcano$ui(ns("volcano_RECOVERY_II"))
             )
           )
         )
