@@ -27,6 +27,7 @@ box::use(
     accordion
   ],
   utils[head],
+  dplyr[filter],
   app / view / GO_selection_module,
   app / view / GO_Color_picker,
   app / view / Gene_symbols_input,
@@ -272,24 +273,25 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     # Volcano modules for the four comparisons using volcano_generic
     # Note: Column names are placeholders and may need adjustment based on actual Dataset 3 structure
-    
+
     # 1. siEEF1A1 vs. Control
     volcano_generic$server(
-      "volcano_siEEF1A1_Control",
+      "volcano_Control_CCCP_Control",
       dataset = reactive({
         if (is.null(datasets) || is.null(datasets$III)) {
           return(NULL)
         }
-        datasets$III
+        datasets$III |>
+          filter(comparison == "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)")
       }),
-      log2fc_column = "Log2FC_siEEF1A1_Control", # Placeholder - may need adjustment
-      qvalue_column = "q_value_siEEF1A1_Control", # Placeholder - may need adjustment
-      gene_column = "Gene names", # Common column name, may need adjustment
+      log2fc_column = "log2_fold",
+      qvalue_column = "q_value",
+      gene_column = "Gene names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
-      title = reactive("siEEF1A1 vs. Control"),
-      X_MIN = -2,
-      X_MAX = 2,
+      title = reactive("siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)"),
+      X_MIN = -2.9,
+      X_MAX = 2.9,
       Y_MIN = 0,
       Y_MAX = 6.9
     )
@@ -301,14 +303,15 @@ server <- function(id, GO = NULL, datasets = NULL) {
         if (is.null(datasets) || is.null(datasets$III)) {
           return(NULL)
         }
-        datasets$III
+        datasets$III |>
+          filter(comparison == "siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)")
       }),
       log2fc_column = "Log2FC_siEEF1A1_CCCP_Control_CCCP", # Placeholder - may need adjustment
       qvalue_column = "q_value_siEEF1A1_CCCP_Control_CCCP", # Placeholder - may need adjustment
       gene_column = "Gene names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
-      title = reactive("siEEF1A1+CCCP vs. Control+CCCP"),
+      title = reactive("siRNA EEF1A1(CCCP) vs. siRNA scramble (CCCP)"),
       X_MIN = -2,
       X_MAX = 2,
       Y_MIN = 0,
@@ -322,16 +325,17 @@ server <- function(id, GO = NULL, datasets = NULL) {
         if (is.null(datasets) || is.null(datasets$III)) {
           return(NULL)
         }
-        datasets$III
+        datasets$III |>
+          filter(comparison == "siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)")
       }),
-      log2fc_column = "Log2FC_Control_CCCP_Control", # Placeholder - may need adjustment
-      qvalue_column = "q_value_Control_CCCP_Control", # Placeholder - may need adjustment
+      log2fc_column = "log2_fold",
+      qvalue_column = "q_value",
       gene_column = "Gene names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
-      title = reactive("Control+CCCP vs. Control"),
-      X_MIN = -2,
-      X_MAX = 2,
+      title = reactive("siRNA EEF1A1(DMSO) vs. siRNA scramble (DMSO)"),
+      X_MIN = -2.9,
+      X_MAX = 2.9,
       Y_MIN = 0,
       Y_MAX = 6.9
     )
