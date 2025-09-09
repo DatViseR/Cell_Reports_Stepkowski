@@ -176,7 +176,14 @@ server <- function(id, GO = NULL, datasets = NULL) {
     )
 
     custom_genes <- eventReactive(input$draw_plots, {
-      unique(c(isolate(manual_genes()), isolate(file_genes())))
+      manual <- isolate(manual_genes())
+      file <- isolate(file_genes())
+      result <- unique(c(manual, file))
+      cat("Action button clicked - processing custom genes: ", length(result), "genes\n")
+      if (length(result) > 0) {
+        cat("Sample custom genes:", paste(head(result, 5), collapse = ", "), "\n")
+      }
+      result
     }, ignoreNULL = FALSE)
 
     # Update button text when button is clicked
@@ -191,6 +198,7 @@ server <- function(id, GO = NULL, datasets = NULL) {
     # Build GO highlight list: list of lists(category, genes, color)
     # Use eventReactive to only update when button is clicked
     go_highlights <- eventReactive(input$draw_plots, {
+      cat("Action button clicked - processing GO highlights\n")
       sel <- isolate(go_selection$chosen_go())
       if (!length(sel)) {
         cat("No GO categories selected\n")
@@ -199,6 +207,7 @@ server <- function(id, GO = NULL, datasets = NULL) {
       
       cols <- isolate(go_colors$go_colors())
       cat("Selected GO categories:", paste(sel, collapse = ", "), "\n")
+      cat("Color assignments:", if(is.null(cols)) "NULL" else length(cols), "\n")
       
       out <- lapply(sel, function(go_cat) {
         # Use the GO mapper to get genes for this category
