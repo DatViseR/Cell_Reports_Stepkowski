@@ -274,7 +274,24 @@ server <- function(id, GO = NULL, datasets = NULL) {
     # Volcano modules for the four comparisons using volcano_generic
     # Note: Column names are placeholders and may need adjustment based on actual Dataset 3 structure
 
-    # 1. siEEF1A1 vs. Control
+    # Set X_MIN , X_MAX = 2.9, Y_MIN = 0, and Y_MAX based on the ranges from the dataset 3
+
+    # Use the above limits for scale to all 4 volcano plots
+
+    # extract comparison names from dataset_iii
+    if (!is.null(datasets) && !is.null(datasets$III)) {
+      comparisons <- unique(datasets$III$comparison)
+      cat(
+        "Available comparisons in Dataset III:",
+        paste(comparisons, collapse = ", "),
+        "\n"
+      )
+    } else {
+      cat("Dataset III not available for extracting comparisons\n")
+    }
+
+    # Use those comparisons to filter the dataset for each one of 4 plots
+
     volcano_generic$server(
       "volcano_Control_CCCP_Control",
       dataset = reactive({
