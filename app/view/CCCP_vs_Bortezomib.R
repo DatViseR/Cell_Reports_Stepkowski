@@ -255,7 +255,12 @@ server <- function(id, GO = NULL, datasets = NULL) {
     # Volcano modules for the two comparisons using volcano_generic
     volcano_generic$server(
       "volcano_CCCP_DMSO",
-      dataset = datasets$II,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$II)) {
+          return(NULL)
+        }
+        datasets$II
+      }),
       log2fc_column = "Log2FC_CCCP_DMSO",
       qvalue_column = "q_value_CCCP_DMSO",
       gene_column = "Gene_names",
@@ -270,7 +275,12 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     volcano_generic$server(
       "volcano_Bortezomib_DMSO",
-      dataset = datasets$II,
+      dataset = reactive({
+        if (is.null(datasets) || is.null(datasets$II)) {
+          return(NULL)
+        }
+        datasets$II
+      }),
       log2fc_column = "Log2FC_Bortezomib_DMSO",
       qvalue_column = "q_value_Bortezomib_DMSO",
       gene_column = "Gene_names",

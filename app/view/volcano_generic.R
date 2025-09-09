@@ -102,33 +102,22 @@ server <- function(
         using_q <- FALSE
       }
 
-      # Remove rows with missing critical values
-      sub <- df[
-        !is.na(df[[log2fc_column]]) &
-          !is.na(df[[y_col]]) &
-          !is.na(df[[gene_column]])
-      ]
-
-      if (!nrow(sub)) {
-        return(sub)
-      }
-
       # Handle p-values/q-values <= 0 or > 1
-      sub[[y_col]][is.na(sub[[y_col]]) | sub[[y_col]] <= 0] <-
-        min(sub[[y_col]][sub[[y_col]] > 0], na.rm = TRUE)
-      sub[[y_col]][sub[[y_col]] > 1] <- 1
+      df[[y_col]][is.na(df[[y_col]]) | df[[y_col]] <= 0] <-
+        min(df[[y_col]][df[[y_col]] > 0], na.rm = TRUE)
+      df[[y_col]][df[[y_col]] > 1] <- 1
 
       # Create standardized column names for plotting
-      sub$genes <- sub[[gene_column]]
-      sub$log2FC <- sub[[log2fc_column]]
-      sub$metric <- sub[[y_col]]
-      sub$neg_log_metric <- -log10(sub$metric)
+      df$genes <- df[[gene_column]]
+      df$log2FC <- df[[log2fc_column]]
+      df$metric <- df[[y_col]]
+      df$neg_log_metric <- -log10(df$metric)
 
       fc_thr <- log2(fc_cutoff())
       q_thr <- q_cutoff()
 
-      sub <- mutate(
-        sub,
+      df <- mutate(
+        df,
         significance = case_when(
           abs(log2FC) >= fc_thr & metric < q_thr & log2FC > 0 ~ "Up",
           abs(log2FC) >= fc_thr & metric < q_thr & log2FC <= 0 ~ "Down",
@@ -137,7 +126,7 @@ server <- function(
         metric_label = metric_label,
         using_q = using_q
       )
-      sub
+      df
     })
 
     output$volcano_plot <- plotly::renderPlotly({
