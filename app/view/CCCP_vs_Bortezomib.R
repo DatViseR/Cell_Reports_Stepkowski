@@ -31,7 +31,7 @@ box::use(
   app / view / GO_Color_picker,
   app / view / Gene_symbols_input,
   app / view / Gene_symbols_file_input,
-  app / view / volcano,
+  app / view / volcano_generic,
   app / view / GO_gene_mapper
 )
 
@@ -86,7 +86,7 @@ ui <- function(id, GO = NULL) {
                 tags$b("CCCP vs. DMSO"),
                 style = "text-align: center; margin-top: 5px; color: #d62728;"
               ),
-              volcano$ui(ns("volcano_CCCP_DMSO"))
+              volcano_generic$ui(ns("volcano_CCCP_DMSO"))
             ),
             column(
               width = 6,
@@ -94,7 +94,7 @@ ui <- function(id, GO = NULL) {
                 tags$b("Bortezomib vs. DMSO"),
                 style = "text-align: center; margin-top: 5px; color: #2ca02c;"
               ),
-              volcano$ui(ns("volcano_Bortezomib_DMSO"))
+              volcano_generic$ui(ns("volcano_Bortezomib_DMSO"))
             )
           ),
           br(),
@@ -235,70 +235,37 @@ server <- function(id, GO = NULL, datasets = NULL) {
       ignoreNULL = FALSE
     ) # Allow initial execution even with NULL input
 
-    # Transform Dataset II data for volcano module compatibility
-    transformed_dataset <- reactive({
+    # Dataset II reactive (no transformation needed)
+    dataset_ii <- reactive({
       if (is.null(datasets) || is.null(datasets$II)) {
         return(NULL)
       }
       
       df <- datasets$II
+      cat("Dataset II structure - rows:", nrow(df), "\n")
+      cat("Available columns:", paste(names(df), collapse = ", "), "\n")
       
-      # Create two rows per gene - one for each comparison
-      cccp_data <- data.frame(
-        Time_point = "CCCP_DMSO",
-        Gene_names = df$Gene_names,
-        Leading_razor_protein = df$Leading_razor_protein,
-        Protein_names = df$Protein_names,
-        `log2(Fold)` = df$Log2FC_CCCP_DMSO,
-        q_value = df$q_value_CCCP_DMSO,
-        p_value_neg_log10 = df$`-Log10_p-value_CCCP_DMSO`,
-        stringsAsFactors = FALSE,
-        check.names = FALSE
-      )
-      
-      bortezomib_data <- data.frame(
-        Time_point = "Bortezomib_DMSO",
-        Gene_names = df$Gene_names,
-        Leading_razor_protein = df$Leading_razor_protein,
-        Protein_names = df$Protein_names,
-        `log2(Fold)` = df$Log2FC_Bortezomib_DMSO,
-        q_value = df$q_value_Bortezomib_DMSO,
-        p_value_neg_log10 = df$`-Log10_p-value_Bortezomib_DMSO`,
-        stringsAsFactors = FALSE,
-        check.names = FALSE
-      )
-      
-      # Combine the data
-      combined_data <- rbind(cccp_data, bortezomib_data)
-      
-      # Remove rows with missing critical values
-      combined_data <- combined_data[
-        !is.na(combined_data$`log2(Fold)`) & 
-        !is.na(combined_data$q_value) &
-        !is.na(combined_data$Gene_names)
-      ]
-      
-      cat("Transformed dataset - rows:", nrow(combined_data), "\n")
-      cat("CCCP_DMSO rows:", sum(combined_data$Time_point == "CCCP_DMSO"), "\n")
-      cat("Bortezomib_DMSO rows:", sum(combined_data$Time_point == "Bortezomib_DMSO"), "\n")
-      
-      return(combined_data)
+      return(df)
     })
 
-    # Volcano modules for the two comparisons
-    volcano$server(
+    # Volcano modules for the two comparisons using volcano_generic
+    volcano_generic$server(
       "volcano_CCCP_DMSO",
-      dataset = transformed_dataset,
-      timepoint = "CCCP_DMSO",
+      dataset = dataset_ii,
+      log2fc_column = "Log2FC_CCCP_DMSO",
+      qvalue_column = "q_value_CCCP_DMSO",
+      gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("CCCP vs. DMSO")
     )
 
-    volcano$server(
+    volcano_generic$server(
       "volcano_Bortezomib_DMSO",
-      dataset = transformed_dataset,
-      timepoint = "Bortezomib_DMSO",
+      dataset = dataset_ii,
+      log2fc_column = "Log2FC_Bortezomib_DMSO",
+      qvalue_column = "q_value_Bortezomib_DMSO",
+      gene_column = "Gene_names",
       go_annotations = go_highlights,
       custom_highlights = custom_genes,
       title = reactive("Bortezomib vs. DMSO")

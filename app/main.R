@@ -150,7 +150,11 @@ server <- function(id) {
       datasets = datasets
     )
 
-    CCCP_vs_Bortezomib$server("CCCP_vs_Bortezomib")
+    CCCP_vs_Bortezomib$server(
+      "CCCP_vs_Bortezomib",
+      GO = GO,
+      datasets = datasets
+    )
     Silencing_EEF1A1$server("Silencing_EEF1A1")
     THRONCAT$server("THRONCAT")
     AI$server("AI")
