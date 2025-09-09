@@ -155,7 +155,11 @@ server <- function(id) {
       GO = GO,
       datasets = datasets
     )
-    Silencing_EEF1A1$server("Silencing_EEF1A1")
+    Silencing_EEF1A1$server(
+      "Silencing_EEF1A1",
+      GO = GO,
+      datasets = datasets
+    )
     THRONCAT$server("THRONCAT")
     AI$server("AI")
     Meta_analysis$server("Meta_analysis")
