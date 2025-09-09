@@ -37,10 +37,6 @@ ui <- function(id, height = "100%", width = "100%") {
         height = "100%", # fill wrapper
         width = "100%"
       )
-    ),
-    shiny::div(
-      style = "font-size: 90%; color: #666; margin-top: 4px;",
-      "Hover for details; click a point to select a gene. Custom genes are labeled."
     )
   )
 }
@@ -185,7 +181,7 @@ server <- function(
         customdata = ~genes,
         name = "Not significant",
         legendgroup = "Significance",
-        showlegend = TRUE,
+        showlegend = FALSE,
         source = "volcano"
       )
 
@@ -217,7 +213,7 @@ server <- function(
             customdata = ~genes,
             name = "Downregulated",
             legendgroup = "Significance",
-            showlegend = TRUE
+            showlegend = FALSE
           )
       }
 
@@ -249,7 +245,7 @@ server <- function(
             customdata = ~genes,
             name = "Upregulated",
             legendgroup = "Significance",
-            showlegend = TRUE
+            showlegend = FALSE
           )
       }
 
