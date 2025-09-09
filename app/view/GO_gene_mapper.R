@@ -1,6 +1,7 @@
 box::use(
   shiny[moduleServer, NS, reactive, is.reactive, req, validate, need],
-  dplyr[filter, pull, distinct]
+  dplyr[filter, pull, distinct],
+  utils[head],
 )
 
 #' GO Gene Mapper Module
@@ -42,20 +43,30 @@ server <- function(id, GO_data) {
           }
 
           # Search by both ID and name (case-insensitive for name)
-          genes <- go_df %>%
+          genes <- go_df |>
             filter(
               id == go_term |
                 tolower(name) == tolower(go_term)
-            ) %>%
-            pull(gene) %>%
+            ) |>
+            pull(gene) |>
             unique()
 
           # Remove any NA or empty values
           genes <- genes[!is.na(genes) & genes != ""]
-          
-          cat("GO_gene_mapper: Found", length(genes), "genes for term:", go_term, "\n")
+
+          cat(
+            "GO_gene_mapper: Found",
+            length(genes),
+            "genes for term:",
+            go_term,
+            "\n"
+          )
           if (length(genes) > 0) {
-            cat("GO_gene_mapper: Sample genes:", paste(head(genes, 5), collapse = ", "), "\n")
+            cat(
+              "GO_gene_mapper: Sample genes:",
+              paste(head(genes, 5), collapse = ", "),
+              "\n"
+            )
           }
 
           return(genes)
@@ -82,10 +93,10 @@ server <- function(id, GO_data) {
           }
 
           # Search for terms containing the search string (case-insensitive)
-          matches <- go_df %>%
-            filter(grepl(search_term, name, ignore.case = TRUE)) %>%
-            group_by(id, name) %>%
-            summarise(gene_count = n_distinct(gene), .groups = "drop") %>%
+          matches <- go_df |>
+            filter(grepl(search_term, name, ignore.case = TRUE)) |>
+            group_by(id, name) |>
+            summarise(gene_count = n_distinct(gene), .groups = "drop") |>
             arrange(desc(gene_count))
 
           return(matches)

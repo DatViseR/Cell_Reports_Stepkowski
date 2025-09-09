@@ -7,6 +7,7 @@ box::use(
     h4,
     p,
     br,
+
     fluidRow,
     column,
     plotOutput,
@@ -29,6 +30,7 @@ box::use(
     accordion
   ],
   graphics[text],
+  utils[head],
   app / view / GO_selection_module,
   app / view / GO_Color_picker,
   app / view / Gene_symbols_input,
@@ -175,16 +177,28 @@ server <- function(id, GO = NULL, datasets = NULL) {
       max_genes = 5000
     )
 
-    custom_genes <- eventReactive(input$draw_plots, {
-      manual <- isolate(manual_genes())
-      file <- isolate(file_genes())
-      result <- unique(c(manual, file))
-      cat("Action button clicked - processing custom genes: ", length(result), "genes\n")
-      if (length(result) > 0) {
-        cat("Sample custom genes:", paste(head(result, 5), collapse = ", "), "\n")
-      }
-      result
-    }, ignoreNULL = FALSE)
+    custom_genes <- eventReactive(
+      input$draw_plots,
+      {
+        manual <- isolate(manual_genes())
+        file <- isolate(file_genes())
+        result <- unique(c(manual, file))
+        cat(
+          "Action button clicked - processing custom genes: ",
+          length(result),
+          "genes\n"
+        )
+        if (length(result) > 0) {
+          cat(
+            "Sample custom genes:",
+            paste(head(result, 5), collapse = ", "),
+            "\n"
+          )
+        }
+        result
+      },
+      ignoreNULL = FALSE
+    )
 
     # Update button text when button is clicked
     observeEvent(input$draw_plots, {
@@ -197,55 +211,65 @@ server <- function(id, GO = NULL, datasets = NULL) {
 
     # Build GO highlight list: list of lists(category, genes, color)
     # Use eventReactive to only update when button is clicked
-    go_highlights <- eventReactive(input$draw_plots, {
-      cat("Action button clicked - processing GO highlights\n")
-      sel <- isolate(go_selection$chosen_go())
-      if (!length(sel)) {
-        cat("No GO categories selected\n")
-        return(NULL)
-      }
-      
-      cols <- isolate(go_colors$go_colors())
-      cat("Selected GO categories:", paste(sel, collapse = ", "), "\n")
-      cat("Color assignments:", if(is.null(cols)) "NULL" else length(cols), "\n")
-      
-      out <- lapply(sel, function(go_cat) {
-        # Use the GO mapper to get genes for this category
-        genes <- unique(go_mapper$get_genes_for_go(go_cat))
-        if (!length(genes)) {
-          cat("No genes found for GO category:", go_cat, "\n")
+    go_highlights <- eventReactive(
+      input$draw_plots,
+      {
+        cat("Action button clicked - processing GO highlights\n")
+        sel <- isolate(go_selection$chosen_go())
+        if (!length(sel)) {
+          cat("No GO categories selected\n")
           return(NULL)
         }
-        cat("Found", length(genes), "genes for GO category:", go_cat, "\n")
-        
-        # Debug: print first few genes
-        cat("Sample genes:", paste(head(genes, 5), collapse = ", "), "\n")
-        
-        list(
-          category = go_cat,
-          genes = genes,
-          color = if (!is.null(cols) && go_cat %in% names(cols)) {
-            cols[[go_cat]]
-          } else {
-            "#FF9900"
-          }
+
+        cols <- isolate(go_colors$go_colors())
+        cat("Selected GO categories:", paste(sel, collapse = ", "), "\n")
+        cat(
+          "Color assignments:",
+          if (is.null(cols)) "NULL" else length(cols),
+          "\n"
         )
-      })
-      # Remove NULLs
-      out <- Filter(Negate(is.null), out)
-      if (!length(out)) {
-        cat("No valid GO highlights created\n")
-        return(NULL)
-      }
-      cat("Created", length(out), "GO highlight groups\n")
-      out
-    }, ignoreNULL = FALSE) # Allow initial execution even with NULL input
+
+        out <- lapply(sel, function(go_cat) {
+          # Use the GO mapper to get genes for this category
+          genes <- unique(go_mapper$get_genes_for_go(go_cat))
+          if (!length(genes)) {
+            cat("No genes found for GO category:", go_cat, "\n")
+            return(NULL)
+          }
+          cat("Found", length(genes), "genes for GO category:", go_cat, "\n")
+
+          # Debug: print first few genes
+          cat("Sample genes:", paste(head(genes, 5), collapse = ", "), "\n")
+
+          list(
+            category = go_cat,
+            genes = genes,
+            color = if (!is.null(cols) && go_cat %in% names(cols)) {
+              cols[[go_cat]]
+            } else {
+              "#FF9900"
+            }
+          )
+        })
+        # Remove NULLs
+        out <- Filter(Negate(is.null), out)
+        if (!length(out)) {
+          cat("No valid GO highlights created\n")
+          return(NULL)
+        }
+        cat("Created", length(out), "GO highlight groups\n")
+        out
+      },
+      ignoreNULL = FALSE
+    ) # Allow initial execution even with NULL input
 
     # Volcano modules with timepoint-based filtering
     volcano$server(
       "volcano_STRESS_I",
       dataset = reactive({
-        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        if (is.null(datasets) || is.null(datasets$I)) {
+          return(NULL)
+        }
         datasets$I
       }),
       timepoint = "STRESS_I",
@@ -257,7 +281,9 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_STRESS_II",
       dataset = reactive({
-        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        if (is.null(datasets) || is.null(datasets$I)) {
+          return(NULL)
+        }
         datasets$I
       }),
       timepoint = "STRESS_II",
@@ -269,7 +295,9 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_RECOVERY_I",
       dataset = reactive({
-        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        if (is.null(datasets) || is.null(datasets$I)) {
+          return(NULL)
+        }
         datasets$I
       }),
       timepoint = "RECOVERY_I",
@@ -281,7 +309,9 @@ server <- function(id, GO = NULL, datasets = NULL) {
     volcano$server(
       "volcano_RECOVERY_II",
       dataset = reactive({
-        if (is.null(datasets) || is.null(datasets$I)) return(NULL)
+        if (is.null(datasets) || is.null(datasets$I)) {
+          return(NULL)
+        }
         datasets$I
       }),
       timepoint = "RECOVERY_II",
