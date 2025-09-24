@@ -2557,6 +2557,18 @@
         "Archs": "x64"
       }
     },
+"plotly": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "plotly",
+    "Title": "Create Interactive Web Graphics via 'plotly.js'",
+    "Version": "4.10.4",
+    "NeedsCompilation": "no"
+  }
+},
+
+
     "rlang": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
