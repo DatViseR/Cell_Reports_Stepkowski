@@ -14,22 +14,6 @@
       "requires": "~=4.5.0"
     }
   },
-  "openssl": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "openssl",
-    "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
-    "Version": "2.1.1",
-    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
-    "Description": "Bindings to OpenSSL libssl and libcrypto for cryptography tasks, including encryption, decryption, signatures, and certificates.",
-    "License": "MIT + file LICENSE",
-    "URL": "https://github.com/r-lib/openssl",
-    "BugReports": "https://github.com/r-lib/openssl/issues",
-    "SystemRequirements": "OpenSSL (>= 1.0.1)",
-    "NeedsCompilation": "yes"
-  }
-},
   "packages": {
     "DT": {
       "Source": "CRAN",
@@ -2853,39 +2837,6 @@
         "Archs": "x64"
       }
     },
-"askpass": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "askpass",
-    "Title": "Safe Password Entry for R",
-    "Version": "1.2.0",
-    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
-    "Description": "Cross-platform utilities for securely requesting a password from users, for use in authentication packages.",
-    "License": "MIT + file LICENSE",
-    "URL": "https://github.com/r-lib/askpass",
-    "BugReports": "https://github.com/r-lib/askpass/issues",
-    "NeedsCompilation": "yes"
-  }
-},
-"sys": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "sys",
-    "Title": "System Utilities",
-    "Version": "3.4.2",
-    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
-    "Description": "System utilities, including functions to read and write system environment variables, get and set process information, and run system commands.",
-    "License": "MIT + file LICENSE",
-    "URL": "https://github.com/r-lib/sys",
-    "BugReports": "https://github.com/r-lib/sys/issues",
-    "NeedsCompilation": "yes"
-  }
-},
-
-
-
     "stringi": {
       "Source": "CRAN",
       "Repository": "https://cloud.r-project.org",
@@ -3010,80 +2961,6 @@
         "Archs": "x64"
       }
     },
-"here": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "here",
-    "Title": "A Simpler Way to Find Your Files",
-    "Version": "1.0.1",
-    "Authors@R": "c(person(\"Jenny\", \"Bryan\", role = c(\"aut\", \"cre\"), email = \"jenny@rstudio.com\"), person(\"Hadley\", \"Wickham\", role = \"aut\"))",
-    "Description": "A simpler way to find your files, reliably. Works with projects, R Markdown, and more.",
-    "License": "GPL-3",
-    "URL": "https://github.com/r-lib/here",
-    "BugReports": "https://github.com/r-lib/here/issues",
-    "Depends": "R (>= 3.0.0)",
-    "NeedsCompilation": "no"
-  }
-},
-"httr": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "httr",
-    "Title": "Tools for Working with URLs and HTTP",
-    "Version": "1.4.7",
-    "Authors@R": "c(person(\"Hadley\", \"Wickham\", role = c(\"aut\", \"cre\"), email = \"hadley@rstudio.com\"), person(\"Posit Software, PBC\", role = \"cph\"))",
-    "Description": "Useful tools for working with HTTP and web requests, including authentication, GET, POST, and more.",
-    "License": "MIT + file LICENSE",
-    "URL": "https://httr.r-lib.org, https://github.com/r-lib/httr",
-    "BugReports": "https://github.com/r-lib/httr/issues",
-    "Depends": "R (>= 3.0.0)",
-    "Imports": "curl, openssl, mime, jsonlite, xml2, tools, utils",
-    "Suggests": "covr, testthat, knitr, rmarkdown, httpuv",
-    "NeedsCompilation": "no"
-  }
-},
-
-"mime": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "mime",
-    "Title": "Map Filenames to MIME Types",
-    "Version": "0.12",
-    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
-    "Description": "Get and map MIME types from file extensions.",
-    "License": "GPL-2 | GPL-3",
-    "URL": "https://github.com/r-lib/mime",
-    "BugReports": "https://github.com/r-lib/mime/issues",
-    "NeedsCompilation": "yes"
-  }
-},
-
-"plotly": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "plotly",
-    "Title": "Create Interactive Web Graphics via 'plotly.js'",
-    "Version": "4.10.4",
-    "Authors@R": "c(person(\"Carson\", \"Sievert\", role = c(\"aut\", \"cre\"), email = \"cpsievert@gmail.com\"), person(\"Chris\", \"Parmer\", role = \"aut\"), person(\"Timo\", \"Ibrahim\", role = \"aut\"), person(\"Cédric\", \"Sueur\", role = \"aut\"), person(\"Karthik\", \"Ram\", role = \"aut\"), person(\"Matthias\", \"Tesch\", role = \"aut\"), person(\"Noah\", \"Gift\", role = \"aut\"), person(\"Jonathan\", \"Keane\", role = \"aut\"))",
-    "Description": "Easily translate ggplot2 graphs to interactive web graphics using plotly's JavaScript graphing library 'plotly.js' (<https://plotly.com/javascript/>).",
-    "License": "MIT + file LICENSE",
-    "URL": "https://plotly-r.com, https://github.com/ropensci/plotly",
-    "BugReports": "https://github.com/ropensci/plotly/issues",
-    "Depends": "R (>= 3.2.0)",
-    "Imports": "htmlwidgets (>= 0.5), jsonlite, viridisLite, ggplot2, glue, httr, tibble, tidyr, dplyr, purrr, magrittr, assertthat, htmltools",
-    "Suggests": "knitr, rmarkdown, shiny, testthat, covr, DT, crosstalk, webshot2, hexbin, sf, plotlyBook, maps, mapproj, maptools, leaflet, gganimate, ggthemes, plotlyGeoAssets, plotlyGeoAssetsExtras, plotlyBook, plotlyGeoAssets, plotlyGeoAssetsExtras, plotlyGeoAssets, plotlyGeoAssetsExtras",
-    "NeedsCompilation": "no"
-  }
-},
-
-
-
-
-
     "tibble": {
       "Source": "CRAN",
       "Repository": "https://cloud.r-project.org",
@@ -3630,7 +3507,7 @@
   },
   "files": {
     ".Rprofile": {
-      "checksum": "8845611367fe6fc1436235496a68d3e3"
+      "checksum": "a1d3478e5d180bd0c8fe1162675b3520"
     },
     "app.R": {
       "checksum": "2fe139690e99f130ad54a180279fadea"
