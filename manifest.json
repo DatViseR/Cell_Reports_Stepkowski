@@ -694,6 +694,19 @@
         "Built": "R 4.5.1; ; 2025-08-04 01:38:43 UTC; windows"
       }
     },
+"openssl": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "openssl",
+    "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
+    "Version": "2.1.1",
+    "SystemRequirements": "OpenSSL (>= 1.0.1)",
+    "NeedsCompilation": "yes"
+  }
+},
+
+
     "cachem": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -2602,8 +2615,6 @@
 },
 
 
-
-
 "plotly": {
   "Source": "CRAN",
   "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
@@ -2614,7 +2625,6 @@
     "NeedsCompilation": "no"
   }
 },
-
 
     "rlang": {
       "Source": "CRAN",
