@@ -42,7 +42,7 @@
         "Built": "R 4.5.1; ; 2025-09-08 09:30:26 UTC; windows"
       }
     },
-{
+
  
     "askpass": {
       "Source": "CRAN",
@@ -73,11 +73,7 @@
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest"
     }
-  },
-
-
-
-
+ 
 "here": {
   "Source": "CRAN",
   "Repository": "https://cloud.r-project.org",
