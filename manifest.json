@@ -14,6 +14,22 @@
       "requires": "~=4.5.0"
     }
   },
+  "openssl": {
+  "Source": "CRAN",
+  "Repository": "https://cloud.r-project.org",
+  "description": {
+    "Package": "openssl",
+    "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
+    "Version": "2.1.1",
+    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
+    "Description": "Bindings to OpenSSL libssl and libcrypto for cryptography tasks, including encryption, decryption, signatures, and certificates.",
+    "License": "MIT + file LICENSE",
+    "URL": "https://github.com/r-lib/openssl",
+    "BugReports": "https://github.com/r-lib/openssl/issues",
+    "SystemRequirements": "OpenSSL (>= 1.0.1)",
+    "NeedsCompilation": "yes"
+  }
+},
   "packages": {
     "DT": {
       "Source": "CRAN",
@@ -3028,22 +3044,7 @@
     "NeedsCompilation": "no"
   }
 },
-"openssl": {
-  "Source": "CRAN",
-  "Repository": "https://cloud.r-project.org",
-  "description": {
-    "Package": "openssl",
-    "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
-    "Version": "2.1.1",
-    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
-    "Description": "Bindings to OpenSSL libssl and libcrypto for cryptography tasks, including encryption, decryption, signatures, and certificates.",
-    "License": "MIT + file LICENSE",
-    "URL": "https://github.com/r-lib/openssl",
-    "BugReports": "https://github.com/r-lib/openssl/issues",
-    "SystemRequirements": "OpenSSL (>= 1.0.1)",
-    "NeedsCompilation": "yes"
-  }
-},
+
 "mime": {
   "Source": "CRAN",
   "Repository": "https://cloud.r-project.org",
