@@ -2869,10 +2869,6 @@
 },
 
 
- "sys": {
-      "Source": "CRAN",
-      "Repository": "https://cran.rstudio.com/"
-    },
 
     "stringi": {
       "Source": "CRAN",
