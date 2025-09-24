@@ -2557,6 +2557,53 @@
         "Archs": "x64"
       }
     },
+"httr": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "httr",
+    "Title": "Tools for Working with URLs and HTTP",
+    "Version": "1.4.7",
+    "Imports": "curl, openssl, mime, jsonlite, xml2, tools, utils",
+    "NeedsCompilation": "no"
+  }
+},
+
+"mime": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "mime",
+    "Title": "Map Filenames to MIME Types",
+    "Version": "0.12",
+    "NeedsCompilation": "yes"
+  }
+},
+"sys": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "sys",
+    "Title": "System Utilities",
+    "Version": "3.4.2",
+    "NeedsCompilation": "yes"
+  }
+},
+"curl": {
+  "Source": "CRAN",
+  "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+  "description": {
+    "Package": "curl",
+    "Title": "A Modern and Flexible Web Client for R",
+    "Version": "6.2.2",
+    "SystemRequirements": "libcurl (>= 7.62)",
+    "NeedsCompilation": "yes"
+  }
+},
+
+
+
+
 "plotly": {
   "Source": "CRAN",
   "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
