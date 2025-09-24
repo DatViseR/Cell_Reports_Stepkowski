@@ -2837,6 +2837,24 @@
         "Archs": "x64"
       }
     },
+"askpass": {
+  "Source": "CRAN",
+  "Repository": "https://cloud.r-project.org",
+  "description": {
+    "Package": "askpass",
+    "Title": "Safe Password Entry for R",
+    "Version": "1.2.0",
+    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
+    "Description": "Cross-platform utilities for securely requesting a password from users, for use in authentication packages.",
+    "License": "MIT + file LICENSE",
+    "URL": "https://github.com/r-lib/askpass",
+    "BugReports": "https://github.com/r-lib/askpass/issues",
+    "NeedsCompilation": "yes"
+  }
+},
+
+
+
     "stringi": {
       "Source": "CRAN",
       "Repository": "https://cloud.r-project.org",
