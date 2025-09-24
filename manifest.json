@@ -641,6 +641,17 @@
         "Archs": "x64"
       }
     },
+    "here": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "here",
+        "Title": "A Simpler Way to Find Your Files",
+        "Version": "1.0.1"
+             }
+      },
+
+
     "broom": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
