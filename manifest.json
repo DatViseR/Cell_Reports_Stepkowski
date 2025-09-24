@@ -2977,6 +2977,27 @@
     "NeedsCompilation": "no"
   }
 },
+"httr": {
+  "Source": "CRAN",
+  "Repository": "https://cloud.r-project.org",
+  "description": {
+    "Package": "httr",
+    "Title": "Tools for Working with URLs and HTTP",
+    "Version": "1.4.7",
+    "Authors@R": "c(person(\"Hadley\", \"Wickham\", role = c(\"aut\", \"cre\"), email = \"hadley@rstudio.com\"), person(\"Posit Software, PBC\", role = \"cph\"))",
+    "Description": "Useful tools for working with HTTP and web requests, including authentication, GET, POST, and more.",
+    "License": "MIT + file LICENSE",
+    "URL": "https://httr.r-lib.org, https://github.com/r-lib/httr",
+    "BugReports": "https://github.com/r-lib/httr/issues",
+    "Depends": "R (>= 3.0.0)",
+    "Imports": "curl, openssl, mime, jsonlite, xml2, tools, utils",
+    "Suggests": "covr, testthat, knitr, rmarkdown, httpuv",
+    "NeedsCompilation": "no"
+  }
+},
+
+
+
 "plotly": {
   "Source": "CRAN",
   "Repository": "https://cloud.r-project.org",
