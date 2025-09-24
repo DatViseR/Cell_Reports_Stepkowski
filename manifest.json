@@ -2852,6 +2852,22 @@
     "NeedsCompilation": "yes"
   }
 },
+"sys": {
+  "Source": "CRAN",
+  "Repository": "https://cloud.r-project.org",
+  "description": {
+    "Package": "sys",
+    "Title": "System Utilities",
+    "Version": "3.4.2",
+    "Authors@R": "c(person(\"Jeroen\", \"Ooms\", email = \"jeroen.ooms@gmail.com\", role = c(\"aut\", \"cre\")))",
+    "Description": "System utilities, including functions to read and write system environment variables, get and set process information, and run system commands.",
+    "License": "MIT + file LICENSE",
+    "URL": "https://github.com/r-lib/sys",
+    "BugReports": "https://github.com/r-lib/sys/issues",
+    "NeedsCompilation": "yes"
+  }
+},
+
 
  "sys": {
       "Source": "CRAN",
