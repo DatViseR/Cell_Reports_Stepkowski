@@ -20,7 +20,12 @@
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
       "description": {
         "Package": "sys",
-        "Version": "3.4.2"
+        "Version": "3.4.2",
+        "Title": "Portable System Utilities",
+        "Depends": "R (>= 3.4.0)",
+        "Imports": "utils",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "yes"
       }
     },
     "askpass": {
@@ -28,7 +33,12 @@
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
       "description": {
         "Package": "askpass",
-        "Version": "1.2.0"
+        "Version": "1.2.0",
+        "Title": "Safe Password Entry for R, Git, and SSH",
+        "Depends": "R (>= 3.3)",
+        "Imports": "sys (>= 2.1)",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "yes"
       }
     },
     "openssl": {
@@ -36,7 +46,13 @@
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
       "description": {
         "Package": "openssl",
-        "Version": "2.1.1"
+        "Version": "2.1.1",
+        "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
+        "Depends": "R (>= 3.4.0)",
+        "Imports": "askpass",
+        "License": "MIT + file LICENSE",
+        "SystemRequirements": "OpenSSL >= 1.0.2",
+        "NeedsCompilation": "yes"
       }
     },
     "httr": {
@@ -44,7 +60,12 @@
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
       "description": {
         "Package": "httr",
-        "Version": "1.4.7"
+        "Version": "1.4.7",
+        "Title": "Tools for Working with URLs and HTTP",
+        "Depends": "R (>= 3.5.0)",
+        "Imports": "curl (>= 5.0.0), jsonlite, mime, openssl (>= 0.8), R6",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "no"
       }
     },
     "plotly": {
@@ -53,7 +74,11 @@
       "description": {
         "Package": "plotly",
         "Version": "4.10.2",
-        "Title": "Create Interactive Web Graphics via 'plotly.js'"
+        "Title": "Create Interactive Web Graphics via plotly.js",
+        "Depends": "R (>= 3.2.0)",
+        "Imports": "tools, scales, httr (>= 1.3.0), jsonlite (>= 1.6), magrittr, digest, viridisLite, base64enc, htmltools (>= 0.3.6), htmlwidgets (>= 1.5.2.9001), tidyr (>= 1.0.0), RColorBrewer, dplyr (>= 1.0.0), vctrs, tibble, lazyeval (>= 0.2.0), rlang (>= 0.4.10), crosstalk, purrr, data.table, promises",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "no"
       }
     },
     "here": {
@@ -61,8 +86,12 @@
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
       "description": {
         "Package": "here",
+        "Version": "1.0.1",
         "Title": "A Simpler Way to Find Your Files",
-        "Version": "1.0.1"
+        "Depends": "R (>= 3.3.0)",
+        "Imports": "rprojroot (>= 2.0.2)",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "no"
       }
     },
     "DT": {
