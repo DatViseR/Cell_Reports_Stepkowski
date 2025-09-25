@@ -15,163 +15,6 @@
     }
   },
   "packages": {
-    "sys": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "sys",
-        "Version": "3.4.2",
-        "Title": "Portable System Utilities",
-        "Depends": "R (>= 3.4.0)",
-        "Imports": "utils",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "yes"
-      }
-    },
-    "askpass": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "askpass",
-        "Version": "1.2.0",
-        "Title": "Safe Password Entry for R, Git, and SSH",
-        "Depends": "R (>= 3.3)",
-        "Imports": "sys (>= 2.1)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "yes"
-      }
-    },
-    "openssl": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "openssl",
-        "Version": "2.1.1",
-        "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
-        "Depends": "R (>= 3.4.0)",
-        "Imports": "askpass",
-        "License": "MIT + file LICENSE",
-        "SystemRequirements": "OpenSSL >= 1.0.2",
-        "NeedsCompilation": "yes"
-      }
-    },
-    "httr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "httr",
-        "Version": "1.4.7",
-        "Title": "Tools for Working with URLs and HTTP",
-        "Depends": "R (>= 3.5.0)",
-        "Imports": "curl (>= 5.0.0), jsonlite, mime, openssl (>= 0.8), R6",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
-    "plotly": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "plotly",
-        "Version": "4.10.2",
-        "Title": "Create Interactive Web Graphics via plotly.js",
-        "Depends": "R (>= 3.2.0)",
-        "Imports": "tools, scales, httr (>= 1.3.0), jsonlite (>= 1.6), magrittr, digest, viridisLite, base64enc, htmltools (>= 0.3.6), htmlwidgets (>= 1.5.2.9001), tidyr (>= 1.0.0), RColorBrewer, dplyr (>= 1.0.0), vctrs, tibble, lazyeval (>= 0.2.0), rlang (>= 0.4.10), crosstalk, purrr, data.table, promises",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
-    "clipr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "clipr",
-        "Version": "0.8.0",
-        "Title": "Read and Write from the System Clipboard",
-        "Depends": "R (>= 3.3.0)",
-        "Imports": "utils",
-        "License": "GPL-3",
-        "NeedsCompilation": "no"
-      }
-    },
-    "hms": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "hms",
-        "Version": "1.1.3",
-        "Title": "Pretty Time of Day",
-        "Depends": "R (>= 3.3)",
-        "Imports": "lifecycle, methods, pkgconfig, rlang (>= 1.0.2), vctrs (>= 0.3.8)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
-    "progress": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "progress",
-        "Version": "1.2.3",
-        "Title": "Terminal Progress Bars",
-        "Depends": "R (>= 3.3.0)",
-        "Imports": "crayon, hms, prettyunits, R6",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
-    "tzdb": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "tzdb",
-        "Version": "0.4.0",
-        "Title": "Time Zone Database Information",
-        "Depends": "R (>= 3.5.0)",
-        "Imports": "cpp11 (>= 0.4.2)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "yes"
-      }
-    },
-    "vroom": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "vroom",
-        "Version": "1.6.5",
-        "Title": "Read and Write Rectangular Text Data Quickly",
-        "Depends": "R (>= 3.6)",
-        "Imports": "bit64, cli (>= 3.4.0), crayon, glue, hms, lifecycle (>= 1.0.3), methods, progress (>= 1.2.1), rlang (>= 0.4.2), stats, tibble, tidyselect, tzdb (>= 0.1.1), vctrs (>= 0.2.0), withr",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "yes"
-      }
-    },
-    "readr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "readr",
-        "Version": "2.1.5",
-        "Title": "Read Rectangular Text Data",
-        "Depends": "R (>= 3.6)",
-        "Imports": "cli (>= 3.2.0), clipr, crayon, hms (>= 0.4.1), lifecycle (>= 0.2.0), methods, rlang, R6, tibble, utils, vroom (>= 1.6.4)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
-    "here": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "here",
-        "Version": "1.0.1",
-        "Title": "A Simpler Way to Find Your Files",
-        "Depends": "R (>= 3.3.0)",
-        "Imports": "rprojroot (>= 2.0.2)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
-      }
-    },
     "DT": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
@@ -197,6 +40,36 @@
         "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
         "Date/Publication": "2024-04-04 05:03:17 UTC",
         "Built": "R 4.5.1; ; 2025-09-08 09:30:26 UTC; windows"
+      }
+    },
+    "curl": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "curl",
+        "Type": "Package",
+        "Title": "A Modern and Flexible Web Client for R",
+        "Version": "6.2.2",
+        "Authors@R": "c(\n    person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroenooms@gmail.com\",\n      comment = c(ORCID = \"0000-0002-4035-0289\")),\n    person(\"Hadley\", \"Wickham\", role = \"ctb\"),\n    person(\"Posit Software, PBC\", role = \"cph\"))",
+        "Description": "Bindings to 'libcurl' <https://curl.se/libcurl/> for performing fully\n    configurable HTTP/FTP requests where responses can be processed in memory, on\n    disk, or streaming via the callback or connection interfaces. Some knowledge\n    of 'libcurl' is recommended; for a more-user-friendly web client see the \n    'httr2' package which builds on this package with http specific tools and logic.",
+        "License": "MIT + file LICENSE",
+        "SystemRequirements": "libcurl (>= 7.62): libcurl-devel (rpm) or\nlibcurl4-openssl-dev (deb)",
+        "URL": "https://jeroen.r-universe.dev/curl",
+        "BugReports": "https://github.com/jeroen/curl/issues",
+        "Suggests": "spelling, testthat (>= 1.0.0), knitr, jsonlite, later,\nrmarkdown, httpuv (>= 1.4.4), webutils",
+        "VignetteBuilder": "knitr",
+        "Depends": "R (>= 3.0.0)",
+        "RoxygenNote": "7.3.2.9000",
+        "Encoding": "UTF-8",
+        "Language": "en-US",
+        "NeedsCompilation": "yes",
+        "Packaged": "2025-03-23 13:24:53 UTC; jeroen",
+        "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),\n  Hadley Wickham [ctb],\n  Posit Software, PBC [cph]",
+        "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
+        "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+        "Date/Publication": "2025-03-24 07:00:02 UTC",
+        "Built": "R 4.5.1; x86_64-w64-mingw32; 2025-09-08 09:30:35 UTC; windows",
+        "Archs": "x64"
       }
     },
     "MASS": {
@@ -491,6 +364,15 @@
         "Archs": "x64"
       }
     },
+    "plotly": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "plotly",
+        "Version": "4.10.2",
+        "Title": "Create Interactive Web Graphics via 'plotly.js'"
+      }
+    },
     "arrow": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
@@ -766,6 +648,15 @@
         "Date/Publication": "2024-04-24 19:20:07 UTC",
         "Built": "R 4.5.1; x86_64-w64-mingw32; 2025-09-02 08:17:24 UTC; windows",
         "Archs": "x64"
+      }
+    },
+    "here": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "here",
+        "Title": "A Simpler Way to Find Your Files",
+        "Version": "1.0.1"
       }
     },
     "broom": {
@@ -1104,36 +995,6 @@
         "Built": "R 4.5.1; ; 2025-09-08 09:30:23 UTC; windows"
       }
     },
-    "curl": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "curl",
-        "Type": "Package",
-        "Title": "A Modern and Flexible Web Client for R",
-        "Version": "6.2.2",
-        "Authors@R": "c(\n    person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroenooms@gmail.com\",\n      comment = c(ORCID = \"0000-0002-4035-0289\")),\n    person(\"Hadley\", \"Wickham\", role = \"ctb\"),\n    person(\"Posit Software, PBC\", role = \"cph\"))",
-        "Description": "Bindings to 'libcurl' <https://curl.se/libcurl/> for performing fully\n    configurable HTTP/FTP requests where responses can be processed in memory, on\n    disk, or streaming via the callback or connection interfaces. Some knowledge\n    of 'libcurl' is recommended; for a more-user-friendly web client see the \n    'httr2' package which builds on this package with http specific tools and logic.",
-        "License": "MIT + file LICENSE",
-        "SystemRequirements": "libcurl (>= 7.62): libcurl-devel (rpm) or\nlibcurl4-openssl-dev (deb)",
-        "URL": "https://jeroen.r-universe.dev/curl",
-        "BugReports": "https://github.com/jeroen/curl/issues",
-        "Suggests": "spelling, testthat (>= 1.0.0), knitr, jsonlite, later,\nrmarkdown, httpuv (>= 1.4.4), webutils",
-        "VignetteBuilder": "knitr",
-        "Depends": "R (>= 3.0.0)",
-        "RoxygenNote": "7.3.2.9000",
-        "Encoding": "UTF-8",
-        "Language": "en-US",
-        "NeedsCompilation": "yes",
-        "Packaged": "2025-03-23 13:24:53 UTC; jeroen",
-        "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),\n  Hadley Wickham [ctb],\n  Posit Software, PBC [cph]",
-        "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-        "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-        "Date/Publication": "2025-03-24 07:00:02 UTC",
-        "Built": "R 4.5.1; x86_64-w64-mingw32; 2025-09-08 09:30:35 UTC; windows",
-        "Archs": "x64"
-      }
-    },
     "data.table": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
@@ -1280,19 +1141,6 @@
         "Date/Publication": "2023-11-17 16:50:02 UTC",
         "Built": "R 4.5.1; x86_64-w64-mingw32; 2025-08-04 01:58:30 UTC; windows",
         "Archs": "x64"
-      }
-    },
-    "ellipsis": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "ellipsis",
-        "Version": "0.3.2",
-        "Title": "Tools for Working with ...",
-        "Depends": "R (>= 3.2.0)",
-        "Imports": "rlang (>= 0.3.0)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
       }
     },
     "evaluate": {
@@ -2348,18 +2196,6 @@
         "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
         "Date/Publication": "2019-09-22 09:20:02 UTC",
         "Built": "R 4.5.1; ; 2025-08-04 00:19:43 UTC; windows"
-      }
-    },
-    "prettyunits": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
-      "description": {
-        "Package": "prettyunits",
-        "Version": "1.2.0",
-        "Title": "Pretty, Human Readable Formatting of Quantities",
-        "Depends": "R (>= 3.1.0)",
-        "License": "MIT + file LICENSE",
-        "NeedsCompilation": "no"
       }
     },
     "pkgload": {
@@ -3668,6 +3504,38 @@
         "Date/Publication": "2025-04-10 06:40:02 UTC",
         "Built": "R 4.5.1; x86_64-w64-mingw32; 2025-09-02 09:14:00 UTC; windows",
         "Archs": "x64"
+      }
+    },
+    "sys": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "sys",
+        "Version": "3.4.2"
+      }
+    },
+    "askpass": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "askpass",
+        "Version": "1.2.0"
+      }
+    },
+    "openssl": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "openssl",
+        "Version": "2.1.1"
+      }
+    },
+    "httr": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "httr",
+        "Version": "1.4.7"
       }
     }
   },

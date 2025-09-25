@@ -1,12 +1,15 @@
 # Force sequential install to avoid race conditions, and prefer PPM Linux binaries
 options(Ncpus = 1)
 Sys.setenv(MAKEFLAGS = "-j1")
+
+# Configure repository for Posit Connect Cloud deployment
 options(
   repos = c(
     CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"
   )
 )
 
+# Initialize renv if available
 if (file.exists("renv")) {
   source("renv/activate.R")
 } else {
