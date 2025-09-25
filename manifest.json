@@ -1282,6 +1282,19 @@
         "Archs": "x64"
       }
     },
+    "ellipsis": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "ellipsis",
+        "Version": "0.3.2",
+        "Title": "Tools for Working with ...",
+        "Depends": "R (>= 3.2.0)",
+        "Imports": "rlang (>= 0.3.0)",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "no"
+      }
+    },
     "evaluate": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
@@ -2335,6 +2348,18 @@
         "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
         "Date/Publication": "2019-09-22 09:20:02 UTC",
         "Built": "R 4.5.1; ; 2025-08-04 00:19:43 UTC; windows"
+      }
+    },
+    "prettyunits": {
+      "Source": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/jammy/latest",
+      "description": {
+        "Package": "prettyunits",
+        "Version": "1.2.0",
+        "Title": "Pretty, Human Readable Formatting of Quantities",
+        "Depends": "R (>= 3.1.0)",
+        "License": "MIT + file LICENSE",
+        "NeedsCompilation": "no"
       }
     },
     "pkgload": {
